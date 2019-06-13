@@ -6,10 +6,29 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <View
+    <TextView
         android:id="@+id/test"
-        android:layout_gravity="center"
-        android:layout_width="200dp"
-        android:layout_height="200dp"/>
+        android:padding="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="20dp"
+        android:drawableStart="@mipmap/ic_launcher"
+        android:text="aa"
+        android:gravity="center"
+
+        android:layout_gravity="top|center_horizontal" />
+
+
+    <com.flod.loadingbutton.HardLoadingButton
+
+        android:id="@+id/test2"
+        android:text="我是文字"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/colorAccent"
+        android:textSize="60sp"
+        android:textColor="@android:color/holo_orange_dark"
+        android:layout_gravity="bottom|center_horizontal" />
 
 </FrameLayout>

@@ -1,12 +1,10 @@
 package com.flod.hardloadingbutton;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.ContentLoadingProgressBar;
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
-
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.flod.loadingbutton.HardLoadingButton;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -15,16 +13,32 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        View view = findViewById(R.id.test);
-        CircularProgressDrawable drawable = new CircularProgressDrawable(this);
+        HardLoadingButton view = findViewById(R.id.test2);
+        //View view2 = findViewById(R.id.test2);
+
+       /* CircularLoadingDrawable drawable = new CircularLoadingDrawable(this);
+        //CircularProgressDrawable drawable = new CircularProgressDrawable(this);
         view.setBackground(drawable);
-        drawable.setStrokeWidth(60);
+       *//* drawable.setStrokeWidth(60);
         drawable.setArrowEnabled(true);
         drawable.setColorSchemeColors(Color.BLUE,Color.GRAY,Color.GREEN);
         //drawable.setStyle(CircularProgressDrawable.LARGE);
         drawable.setArrowDimensions(60,60);
-        drawable.setBackgroundColor(Color.BLUE);
-        drawable.start();
+        drawable.setBackgroundColor(Color.BLUE);*//*
+        drawable.start();*/
+
+
+
+      /*  CircularProgressDrawable drawable2 = new CircularProgressDrawable(this);
+        view2.setBackground(drawable2);
+        drawable2.setStrokeWidth(60);
+        drawable2.start();*/
+
+        /*CircularProgressDrawable mProgressDrawable = new CircularProgressDrawable(this);
+        mProgressDrawable.setBounds(0, 0, 200, 200);
+        mProgressDrawable.setStrokeWidth(20f);
+        mProgressDrawable.start();
+        view.setCompoundDrawables(mProgressDrawable,null,null,null);*/
 
     }
 }

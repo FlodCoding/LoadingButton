@@ -13,17 +13,30 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.NonNull;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 
 
 public class CircularLoadingDrawable extends Drawable implements Animatable {
+    private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
+    private static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
 
-    private static final float CENTER_RADIUS = 7.5f;     //中心圆半径
-    private static final float STROKE_WIDTH = 2.5f;      //圆环宽度
+    private static final float CENTER_RADIUS = 7.5f;        //中心圆半径
+    private static final float STROKE_WIDTH = 60f;         //圆环宽度
+
+    private static final float ANIMATOR_TARGET_VALUE = 1f;  //动画的目标值
+
 
     private static final int ANIMATION_DURATION = 1332;  //圆环旋转完的动画时间
+
+    private static final float MAX_PROGRESS_ARC = .8f;   //动画期间最大的弧长
+    private static final float MIN_PROGRESS_ARC = .01f;  //动画期间最小的弧长
+    private static final float RING_ROTATION = 1f - (MAX_PROGRESS_ARC - MIN_PROGRESS_ARC);
+    private static final float GROUP_FULL_ROTATION = 1080f / 5f;
 
     private final Ring mRing;
     private Resources mResources;
@@ -41,7 +54,7 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
 
     private void initAnimators() {
         final Ring ring = mRing;
-        final ValueAnimator animator = ValueAnimator.ofFloat(0f, 1f);
+        final ValueAnimator animator = ValueAnimator.ofFloat(0f, ANIMATOR_TARGET_VALUE);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -84,6 +97,7 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
 
                 mRotationCount++;
             }
+
         });
 
         mAnimator = animator;
@@ -103,15 +117,34 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
      * @param lastFrame     是否是最后一帧
      */
     private void applyTransformation(float animatedValue, Ring ring, boolean lastFrame) {
-        final float startingRotation = 0;
-        float startTrim, endTrim;
+        final float startingRotation = ring.getStartingRotation();
+        float startTrim = 0, endTrim = 0;
 
-        if(animatedValue < 0.5f){
-            //动画前半部分
-            final float scaledTime = animatedValue / 0.5f;
-            startTrim = 0;
+        if (animatedValue < ANIMATOR_TARGET_VALUE / 2f) {
+            //动画前半部分,startTrim不变，endTrim快速变化
+            final float scaledTime = animatedValue / 0.5f;  //TODO scaledTime做什么的？？
+            startTrim = ring.getStartingStartTrim();
+            Log.d("applyTransformation",MATERIAL_INTERPOLATOR.getInterpolation(scaledTime)+"");
+            endTrim = startTrim + ((MAX_PROGRESS_ARC - MIN_PROGRESS_ARC) //startTrim + (0.8-0.01)*interpolator.value*2+0.01
+                    * MATERIAL_INTERPOLATOR.getInterpolation(scaledTime) + MIN_PROGRESS_ARC);
 
-        }
+        } /*else {
+            //后半部分startTrim快速变化，endTrim不变
+            float scaledTime = (animatedValue - 0.5f) / (1f - 0.5f);
+            endTrim = ring.getStartingStartTrim() + (MAX_PROGRESS_ARC - MIN_PROGRESS_ARC);
+            startTrim = endTrim - ((MAX_PROGRESS_ARC - MIN_PROGRESS_ARC)
+                    * (1f - MATERIAL_INTERPOLATOR.getInterpolation(scaledTime))
+                    + MIN_PROGRESS_ARC);
+        }*/
+
+        final float rotation = startingRotation + (RING_ROTATION * animatedValue);
+        float groupRotation = GROUP_FULL_ROTATION * (animatedValue + mRotationCount);
+
+
+        ring.setStartTrim(startTrim);
+        ring.setEndTrim(endTrim);
+        ring.setRotation(rotation);
+        setRotation(groupRotation);
 
     }
 
@@ -127,6 +160,12 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
         float mRotation = 0f;    //旋转的次数
         float mRingCenterRadius; //圆环中心圆半径
 
+        //保存的位置值
+        float mStartingStartTrim;
+        float mStartingEndTrim;
+        float mStartingRotation;
+
+
         int mCurrentColor = Color.BLACK;
         int mAlpha = 255;
 
@@ -134,6 +173,7 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
             mPaint.setStrokeCap(Paint.Cap.SQUARE);
             mPaint.setAntiAlias(true);
             mPaint.setStyle(Paint.Style.STROKE);
+
 
             mCirclePaint.setColor(Color.TRANSPARENT);
         }
@@ -146,7 +186,9 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
 
         //保存当前的状态
         void storeOriginals() {
-
+            mStartingStartTrim = mStartTrim;
+            mStartingEndTrim = mEndTrim;
+            mStartingRotation = mRotation;
         }
 
 
@@ -164,7 +206,7 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
             arcBounds.set(bounds.centerX() - arcRadius,
                     bounds.centerY() - arcRadius,
                     bounds.centerX() + arcRadius,
-                    bounds.centerY() - arcRadius);
+                    bounds.centerY() + arcRadius);
 
             final float startAngle = (mStartTrim + mRotation) * 360;
             final float endAngle = (mEndTrim + mRotation) * 360;
@@ -182,6 +224,7 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
             c.drawCircle(arcBounds.centerX(), arcBounds.centerY(),
                     arcBounds.width() / 2f, mCirclePaint);
             arcBounds.inset(-inset, -inset);    //复位
+
 
             //绘制弧
             c.drawArc(arcBounds, startAngle, sweepAngle, false, mPaint);
@@ -213,6 +256,38 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
         public void setEndTrim(float endTrim) {
             mEndTrim = endTrim;
         }
+
+        public float getStartingStartTrim() {
+            return mStartingStartTrim;
+        }
+
+        public void setStartingStartTrim(float startingStartTrim) {
+            mStartingStartTrim = startingStartTrim;
+        }
+
+        public float getStartingEndTrim() {
+            return mStartingEndTrim;
+        }
+
+        public void setStartingEndTrim(float startingEndTrim) {
+            mStartingEndTrim = startingEndTrim;
+        }
+
+        public float getStartingRotation() {
+            return mStartingRotation;
+        }
+
+        public void setStartingRotation(float startingRotation) {
+            mStartingRotation = startingRotation;
+        }
+
+        public void setRotation(float rotation) {
+            mRotation = rotation;
+        }
+    }
+
+    private void setRotation(float rotation) {
+        mRotation = rotation;
     }
 
     @Override
@@ -221,6 +296,12 @@ public class CircularLoadingDrawable extends Drawable implements Animatable {
         canvas.save();
         canvas.rotate(mRotation, bounds.exactCenterX(), bounds.exactCenterY());
         mRing.draw(canvas, bounds);
+    /*    final RectF arcBounds = new RectF(100, 100, 400, 400);
+        Paint paint = new Paint();
+        paint.setColor(Color.BLACK);
+        paint.setStrokeWidth((float) 3.0);
+        paint.setStyle(Paint.Style.STROKE);
+        canvas.drawArc(arcBounds, 200, 135, false, paint);*/
         canvas.restore();
     }
 

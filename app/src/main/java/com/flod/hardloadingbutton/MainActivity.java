@@ -1,6 +1,7 @@
 package com.flod.hardloadingbutton;
 
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -13,7 +14,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        HardLoadingButton view = findViewById(R.id.test2);
+        final HardLoadingButton view = findViewById(R.id.test2);
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view.start();
+            }
+        });
         //View view2 = findViewById(R.id.test2);
 
        /* CircularLoadingDrawable drawable = new CircularLoadingDrawable(this);

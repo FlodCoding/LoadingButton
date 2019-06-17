@@ -19,14 +19,15 @@
 
     <com.flod.loadingbutton.HardLoadingButton
         android:id="@+id/test2"
-        android:layout_width="120dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:background="@drawable/account_selector_btn_sign_up_bank"
+        android:background="@color/colorAccent"
         android:gravity="center"
-        android:padding="25dp"
-        android:text="我是文字"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
+        android:text="我是文字我是文字我是文字"
         android:textColor="@android:color/holo_orange_dark"
-        android:textSize="10sp" />
+        android:textSize="25sp" />
 
 </FrameLayout>

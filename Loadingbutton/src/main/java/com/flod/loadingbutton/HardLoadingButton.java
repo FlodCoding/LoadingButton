@@ -13,8 +13,8 @@ public class HardLoadingButton extends AppCompatTextView {
     private CircularProgressDrawable mProgressDrawable;
     private ValueAnimator mAnimator;
     private boolean isFinished;
-    private int originalWidth;
-    private int originalHeight;
+    private int originalWidth = -1;
+    private int originalHeight = -1;
 
 
     public HardLoadingButton(Context context) {
@@ -31,6 +31,16 @@ public class HardLoadingButton extends AppCompatTextView {
         setUpAnimator();
     }
 
+    @Override
+    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+        super.onLayout(changed, left, top, right, bottom);
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
 
     private void setUpAnimator() {
         final ValueAnimator animator = new ValueAnimator();
@@ -39,6 +49,7 @@ public class HardLoadingButton extends AppCompatTextView {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 getLayoutParams().width = (int) animation.getAnimatedValue();
+                getLayoutParams().height = getOriginalHeight();
                 requestLayout();
             }
         });
@@ -61,40 +72,30 @@ public class HardLoadingButton extends AppCompatTextView {
     }
 
     private void startProgressDrawable() {
-        final int outSize = Math.min(originalWidth, originalHeight);
-        final int defaultSize = (int) (outSize * 0.8);
-        final int left = Math.abs(outSize - defaultSize) / 2 + getScrollX();
-        final int top = getScrollY();
-        final int right = left + defaultSize;
-        final int bottom = top + defaultSize;
-
+        final int defaultSize = getProgressDrawableSize();
         mProgressDrawable.setStrokeWidth(defaultSize * 0.1f);
         mProgressDrawable.setColorSchemeColors(getTextColors().getDefaultColor());
-        mProgressDrawable.setBounds(left, top, right, bottom);
+        mProgressDrawable.setBounds(0, 0, defaultSize, defaultSize);
         setCompoundDrawables(mProgressDrawable, null, null, null);
-    }
-
-    private void storeViewSize() {
-        originalWidth = getWidth();
-        originalHeight = getHeight();
     }
 
     public CircularProgressDrawable getProgressDrawable() {
         return mProgressDrawable;
     }
 
-
     public void start() {
         mAnimator.cancel();
         if (mAnimator.getValues() == null) {
-            storeViewSize();
-            mAnimator.setIntValues(originalWidth, originalHeight);
+            mAnimator.setIntValues(getOriginalWidth(), getShrinkWidth());
         }
+
 
         if (!isFinished) {
             mAnimator.start();
         } else
             mAnimator.reverse();
+
+
     }
 
 
@@ -102,4 +103,25 @@ public class HardLoadingButton extends AppCompatTextView {
 
     }
 
+
+    private int getShrinkWidth() {
+        return getProgressDrawableSize() + getPaddingEnd() + getPaddingStart();
+    }
+
+    private int getProgressDrawableSize() {
+        int outSize = Math.min(getOriginalWidth(), getOriginalHeight());
+        return (int) (outSize * 0.8);
+    }
+
+    public int getOriginalWidth() {
+        if (originalWidth == -1)
+            originalWidth = getWidth();
+        return originalWidth;
+    }
+
+    public int getOriginalHeight() {
+        if (originalHeight == -1)
+            originalHeight = getHeight();
+        return originalHeight;
+    }
 }

@@ -22,12 +22,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:background="@color/colorAccent"
+        android:background="@android:color/background_dark"
         android:gravity="center"
-        android:paddingStart="15dp"
-        android:paddingEnd="15dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:paddingTop="10dp"
         android:text="我是文字我是文字我是文字"
         android:textColor="@android:color/holo_orange_dark"
-        android:textSize="25sp" />
+        android:textSize="30sp" />
 
 </FrameLayout>

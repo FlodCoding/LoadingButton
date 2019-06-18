@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.flod.loadingbutton.HardLoadingButton;
 
 public class MainActivity extends AppCompatActivity {
+    boolean mBoolean;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +19,12 @@ public class MainActivity extends AppCompatActivity {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                view.start();
+               /* mBoolean = !mBoolean;
+                if (mBoolean)
+                    view.start();
+                else
+                    view.stop();*/
+                view.toggle();
             }
         });
         //View view2 = findViewById(R.id.test2);

@@ -5,6 +5,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.flod.loadingbutton.DrawableTextView;
 import com.flod.loadingbutton.HardLoadingButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,14 +20,22 @@ public class MainActivity extends AppCompatActivity {
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               /* mBoolean = !mBoolean;
-                if (mBoolean)
+                if (!mBoolean) {
                     view.start();
-                else
-                    view.stop();*/
-                view.toggle();
+                } else
+                    view.stop();
+                mBoolean = !mBoolean;
             }
         });
+
+        final DrawableTextView view1 = findViewById(R.id.test3);
+        view1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                view1.toggle();
+            }
+        });
+
         //View view2 = findViewById(R.id.test2);
 
        /* CircularLoadingDrawable drawable = new CircularLoadingDrawable(this);

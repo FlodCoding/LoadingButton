@@ -31,4 +31,10 @@
         android:textColor="@android:color/holo_orange_dark"
         android:textSize="30sp" />
 
+    <com.flod.loadingbutton.DrawableTextView
+        android:id="@+id/test3"
+        android:background="@android:color/background_dark"
+        android:layout_width="200dp"
+        android:layout_height="200dp" />
+
 </FrameLayout>

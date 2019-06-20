@@ -28,11 +28,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        view.setOnLoadingListener(new HardLoadingButton.OnLoadingListener() {
+            @Override
+            public void onLoadingStart() {
+                view.setText("加载中");
+            }
+
+            @Override
+            public void onLoadingEnd() {
+                view.setText("加载成功");
+            }
+
+            @Override
+            public void onEndDrawableEnd() {
+                view.setText("我是文字");
+            }
+        });
+
         final DrawableTextView view1 = findViewById(R.id.test3);
         view1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                view1.toggle();
+
             }
         });
 

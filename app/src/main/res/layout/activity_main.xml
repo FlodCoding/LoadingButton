@@ -19,22 +19,28 @@
 
     <com.flod.loadingbutton.HardLoadingButton
         android:id="@+id/test2"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
-        android:background="@android:color/background_dark"
-        android:gravity="center"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:paddingTop="10dp"
-        android:text="我是文字我是文字我是文字"
+        android:background="@drawable/account_selector_btn_sign_up_bank"
+        android:gravity="left"
+        android:padding="10dp"
+        android:text="1"
         android:textColor="@android:color/holo_orange_dark"
         android:textSize="30sp" />
 
+    <TextView
+        android:layout_marginTop="100dp"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:drawableEnd="@drawable/ic_launcher"/>
+
     <com.flod.loadingbutton.DrawableTextView
         android:id="@+id/test3"
-        android:background="@android:color/background_dark"
-        android:layout_width="200dp"
-        android:layout_height="200dp" />
+        android:text="44"
+        android:drawableEnd="@drawable/ic_launcher"
+        android:layout_width="300dp"
+        android:gravity="center"
+        android:layout_height="wrap_content" />
 
 </FrameLayout>

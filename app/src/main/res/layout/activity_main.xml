@@ -22,7 +22,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="300dp"
-        android:background="@drawable/account_selector_btn_sign_up_bank"
+
         android:drawableStart="@drawable/ic_launcher"
         android:gravity="center"
         android:padding="10dp"
@@ -30,13 +30,15 @@
 
     <com.flod.loadingbutton.LoadingButton
         android:id="@+id/test2"
-        android:layout_width="wrap_content"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_margin="15dp"
-        android:background="@drawable/account_selector_btn_sign_up_bank"
+        android:background="@android:color/background_dark"
         android:gravity="center"
-        android:padding="10dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:paddingStart="15dp"
         android:text="登录"
         android:drawablePadding="10dp"
         android:textColor="@android:color/holo_orange_dark"

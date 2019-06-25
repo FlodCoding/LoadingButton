@@ -39,7 +39,7 @@ public class LoadingButton extends DrawableTextView {
 
     private EndDrawable mEndDrawable;
 
-    private boolean enableShrinkAnim = false;   //是否开启收缩动画
+    private boolean enableShrinkAnim = true;   //是否开启收缩动画
 
     private boolean isShrinkAnimFinished;
 
@@ -198,7 +198,7 @@ public class LoadingButton extends DrawableTextView {
 
     public int getLoadingSize() {
         if (mLoadingSize == 0) {
-            mLoadingSize = (int) ((Math.min(getOriginalWidth(), getOriginalHeight()) -
+            mLoadingSize = (int) ((getOriginalHeight() -
                     getPaddingTop() - getPaddingBottom()) * 0.8);
         }
         return mLoadingSize;
@@ -254,14 +254,12 @@ public class LoadingButton extends DrawableTextView {
         private static final int DEFAULT_END_DRAWABLE_DURATION = 1500;
         private static final int DEFAULT_APPEAR_DURATION = 300;
         private Bitmap mBitmap;
-        private Drawable mDrawable;
         private Paint mPaint;
         private Path mCirclePath;   //圆形裁剪路径
         private ObjectAnimator mAppearAnimator;
         private long duration = DEFAULT_END_DRAWABLE_DURATION;
         private float animValue;
         private boolean isShowing;
-        private Rect dst = new Rect();
 
 
         private EndDrawable(@DrawableRes int id) {
@@ -315,18 +313,22 @@ public class LoadingButton extends DrawableTextView {
         }
 
         private void draw(Canvas canvas) {
-            if (getAnimValue() > 0) {
-                canvas.save();
-           /*     dst.left = getPaddingStart();
-                dst.top = (getOriginalHeight() + getPaddingTop() - getLoadingSize()) / 2;
-                dst.right = dst.left + getLoadingSize();
-                dst.bottom = dst.top + getLoadingSize();
-            */
+            if (getAnimValue() > 0 && mProgressDrawable != null) {
 
+                final int compoundPaddingTop = getCompoundPaddingTop();
+                final int compoundPaddingBottom = getCompoundPaddingBottom();
+                final Rect bounds = mProgressDrawable.getBounds();
+                final int vspace = canvas.getHeight() - compoundPaddingTop - compoundPaddingBottom;
+                final int offsetX = getScrollX() + getPaddingStart();
+                final int offsetY = getScrollY() + compoundPaddingTop + (vspace - bounds.height()) / 2;
+
+                canvas.save();
+                canvas.translate(offsetX, offsetY);
                 mCirclePath.reset();
-                mCirclePath.addCircle(mProgressDrawable.getBounds().centerX(), mProgressDrawable.getBounds().centerY(), ((getLoadingSize() >> 1) * 1.3f) * animValue, Path.Direction.CW);
+                mCirclePath.addCircle(bounds.centerX(), bounds.centerY(),
+                        ((getLoadingSize() >> 1) * 1.3f) * animValue, Path.Direction.CW);
                 canvas.clipPath(mCirclePath);
-                canvas.drawBitmap(mBitmap, null, mProgressDrawable.getBounds(), mPaint);
+                canvas.drawBitmap(mBitmap, null, bounds, mPaint);
                 canvas.restore();
             }
         }
@@ -341,8 +343,6 @@ public class LoadingButton extends DrawableTextView {
         }
 
         private void setBitmap(int id) {
-            // mBitmap = BitmapFactory.decodeResource(getResources(), id);
-           // mDrawable = ContextCompat.getDrawable(getContext(), id);
             mBitmap = BitmapFactory.decodeResource(getResources(), id);
         }
 

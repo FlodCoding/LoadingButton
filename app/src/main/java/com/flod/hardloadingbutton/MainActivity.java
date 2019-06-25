@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onLoadingEnd() {
-                view.setText("加载成功");
+                //view.setText("加载成功");
             }
 
             @Override
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        view1.setDrawableStart(getResources().getDrawable(R.drawable.ic_event_available_black_24dp));
+
 
 
 

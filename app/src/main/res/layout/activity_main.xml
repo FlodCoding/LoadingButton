@@ -6,19 +6,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <com.flod.loadingbutton.DrawableTextView
+        android:id="@+id/test3"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:drawableStart="@drawable/ic_launcher"
+        android:drawableEnd="@drawable/ic_launcher"
+        android:gravity="center"
+        android:text="555555"
+        app:drawableBottomHeight="90dp"
+       />
 
-
-    <com.flod.loadingbutton.HardLoadingButton
-        android:id="@+id/test2"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:background="@drawable/account_selector_btn_sign_up_bank"
-        android:gravity="left"
-        android:padding="10dp"
-        android:text="1"
-        android:textColor="@android:color/holo_orange_dark"
-        android:textSize="30sp" />
 
     <TextView
         android:layout_width="match_parent"
@@ -27,21 +25,22 @@
         android:background="@drawable/account_selector_btn_sign_up_bank"
         android:drawableStart="@drawable/ic_launcher"
         android:gravity="center"
-        android:padding="30dp"
+        android:padding="10dp"
         android:text="44444444" />
 
-    <com.flod.loadingbutton.DrawableTextView
-        android:id="@+id/test3"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:drawableStart="@drawable/ic_launcher"
-        android:drawableTop="@drawable/ic_launcher"
-        android:drawableEnd="@drawable/ic_launcher"
-        android:drawableBottom="@drawable/ic_launcher"
+    <com.flod.loadingbutton.LoadingButton
+        android:id="@+id/test2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_margin="15dp"
+        android:background="@drawable/account_selector_btn_sign_up_bank"
         android:gravity="center"
-        android:text="5555555555"
-        app:drawableBottomHeight="90dp"
-        app:drawableStartHeight="30dp"
-        app:drawableStartWidth="20dp" />
+        android:padding="10dp"
+        android:text="登录"
+        android:drawablePadding="10dp"
+        android:textColor="@android:color/holo_orange_dark"
+        android:textSize="15sp" />
+
 
 </FrameLayout>

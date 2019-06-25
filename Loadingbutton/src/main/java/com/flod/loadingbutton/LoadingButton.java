@@ -19,7 +19,6 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 /**
@@ -28,7 +27,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
  * 3、getCompoundDrawablesRelative和getCompoundDrawables不一样
  */
 @SuppressWarnings("UnusedReturnValue")
-public class HardLoadingButton extends AppCompatTextView {
+public class LoadingButton extends DrawableTextView {
     private static final int DEFAULT_SHRINK_DURATION = 600;
     private CircularProgressDrawable mProgressDrawable;
     private ValueAnimator mShrinkAnimator;
@@ -48,16 +47,23 @@ public class HardLoadingButton extends AppCompatTextView {
 
     private int mLoadingSize;
 
-    public HardLoadingButton(Context context) {
-        this(context, null);
+    public LoadingButton(Context context) {
+        super(context);
+        init(context, null);
     }
 
-    public HardLoadingButton(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
+    public LoadingButton(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context, attrs);
     }
 
-    public HardLoadingButton(Context context, AttributeSet attrs, int defStyleAttr) {
+    public LoadingButton(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        init(context, attrs);
+    }
+
+    private void init(Context context, AttributeSet attrs) {
+
         setLayerType(LAYER_TYPE_HARDWARE, null);
         mProgressDrawable = new CircularProgressDrawable(context);
         mProgressDrawable.setColorSchemeColors(getTextColors().getDefaultColor());
@@ -99,7 +105,7 @@ public class HardLoadingButton extends AppCompatTextView {
                 if (!isShrinkAnimFinished) {
                     startProgressDrawable();
                 } else {
-                    setCompoundDrawables(originalDrawables[0], originalDrawables[1], originalDrawables[2], originalDrawables[3]);
+                    setCompoundDrawablesRelative(originalDrawables[0], originalDrawables[1], originalDrawables[2], originalDrawables[3]);
                     setPadding(originalPadding[0], originalPadding[1], originalPadding[2], originalPadding[3]);
                     setText(mText);
                 }
@@ -112,16 +118,8 @@ public class HardLoadingButton extends AppCompatTextView {
 
     private void startProgressDrawable() {
         final int size = getLoadingSize();
-        mProgressDrawable.setStrokeWidth(size * 0.12f);
-
-        int left = 0;
-        if (enableShrinkAnim) {
-            setPadding(0, 0, 0, 0);
-            left = (getOriginalHeight() - size) / 2;
-        }
-        mProgressDrawable.setBounds(left, 0, left + size, size);
-
-        setCompoundDrawables(mProgressDrawable, null, null, null);
+        mProgressDrawable.setStrokeWidth(size * 0.15f);
+        setDrawable(POSITION.START, mProgressDrawable, size, size);
         if (mOnLoadingListener != null) {
             mOnLoadingListener.onLoadingStart();
         }
@@ -140,7 +138,7 @@ public class HardLoadingButton extends AppCompatTextView {
             else
                 mShrinkAnimator.reverse();
         } else {
-            setCompoundDrawables(originalDrawables[0], originalDrawables[1], originalDrawables[2], originalDrawables[3]);
+            setCompoundDrawablesRelative(originalDrawables[0], originalDrawables[1], originalDrawables[2], originalDrawables[3]);
         }
     }
 
@@ -150,6 +148,8 @@ public class HardLoadingButton extends AppCompatTextView {
         else {
             startProgressDrawable();
         }
+
+//        mEndDrawable.show();
     }
 
 
@@ -159,6 +159,7 @@ public class HardLoadingButton extends AppCompatTextView {
         }
         mProgressDrawable.stop();
         mEndDrawable.show();
+       // mEndDrawable.hide();
     }
 
     public void toggle() {
@@ -166,27 +167,27 @@ public class HardLoadingButton extends AppCompatTextView {
     }
 
 
-    public HardLoadingButton setEndDrawable(@DrawableRes int id) {
+    public LoadingButton setEndDrawable(@DrawableRes int id) {
         mEndDrawable.setBitmap(id);
         return this;
     }
 
-    public HardLoadingButton setEndDrawableDuration(long milliseconds) {
+    public LoadingButton setEndDrawableDuration(long milliseconds) {
         mEndDrawable.setDuration(milliseconds);
         return this;
     }
 
-    public HardLoadingButton setShrinkDuration(long milliseconds) {
+    public LoadingButton setShrinkDuration(long milliseconds) {
         mShrinkAnimator.setDuration(milliseconds);
         return this;
     }
 
-    public HardLoadingButton setLoadingSize(@Px int size) {
+    public LoadingButton setLoadingSize(@Px int size) {
         mLoadingSize = size;
         return this;
     }
 
-    public HardLoadingButton setLoadingColor(@NonNull int... colors) {
+    public LoadingButton setLoadingColor(@NonNull int... colors) {
         mProgressDrawable.setColorSchemeColors(colors);
         return this;
     }
@@ -198,7 +199,7 @@ public class HardLoadingButton extends AppCompatTextView {
     public int getLoadingSize() {
         if (mLoadingSize == 0) {
             mLoadingSize = (int) ((Math.min(getOriginalWidth(), getOriginalHeight()) -
-                    getPaddingTop() - getPaddingBottom()) * 0.7);
+                    getPaddingTop() - getPaddingBottom()) * 0.8);
         }
         return mLoadingSize;
     }
@@ -218,7 +219,7 @@ public class HardLoadingButton extends AppCompatTextView {
     }
 
     @Override
-    public void setCompoundDrawables(@Nullable Drawable left, @Nullable Drawable top, @Nullable Drawable right, @Nullable Drawable bottom) {
+    public void setCompoundDrawablesRelative(@Nullable Drawable left, @Nullable Drawable top, @Nullable Drawable right, @Nullable Drawable bottom) {
         if (originalDrawables != null) {
             if (!(left instanceof CircularProgressDrawable))
                 originalDrawables[0] = left;
@@ -226,7 +227,7 @@ public class HardLoadingButton extends AppCompatTextView {
             originalDrawables[2] = right;
             originalDrawables[3] = bottom;
         }
-        super.setCompoundDrawables(left, top, right, bottom);
+        super.setCompoundDrawablesRelative(left, top, right, bottom);
     }
 
     public int getOriginalWidth() {
@@ -253,6 +254,7 @@ public class HardLoadingButton extends AppCompatTextView {
         private static final int DEFAULT_END_DRAWABLE_DURATION = 1500;
         private static final int DEFAULT_APPEAR_DURATION = 300;
         private Bitmap mBitmap;
+        private Drawable mDrawable;
         private Paint mPaint;
         private Path mCirclePath;   //圆形裁剪路径
         private ObjectAnimator mAppearAnimator;
@@ -287,12 +289,16 @@ public class HardLoadingButton extends AppCompatTextView {
                     }, duration);
                 }
             });
+
+
         }
 
 
         private void show() {
             mAppearAnimator.cancel();
             mAppearAnimator.start();
+
+            //setDrawable(POSITION.START, mDrawable, 60, 60);
         }
 
         private void hide() {
@@ -311,15 +317,16 @@ public class HardLoadingButton extends AppCompatTextView {
         private void draw(Canvas canvas) {
             if (getAnimValue() > 0) {
                 canvas.save();
-                dst.left = getPaddingStart();
+           /*     dst.left = getPaddingStart();
                 dst.top = (getOriginalHeight() + getPaddingTop() - getLoadingSize()) / 2;
                 dst.right = dst.left + getLoadingSize();
                 dst.bottom = dst.top + getLoadingSize();
+            */
 
                 mCirclePath.reset();
-                mCirclePath.addCircle(dst.centerX(), dst.centerY(), ((getLoadingSize() >> 1) * 1.3f) * animValue, Path.Direction.CW);
+                mCirclePath.addCircle(mProgressDrawable.getBounds().centerX(), mProgressDrawable.getBounds().centerY(), ((getLoadingSize() >> 1) * 1.3f) * animValue, Path.Direction.CW);
                 canvas.clipPath(mCirclePath);
-                canvas.drawBitmap(mBitmap, null, dst, mPaint);
+                canvas.drawBitmap(mBitmap, null, mProgressDrawable.getBounds(), mPaint);
                 canvas.restore();
             }
         }
@@ -334,6 +341,8 @@ public class HardLoadingButton extends AppCompatTextView {
         }
 
         private void setBitmap(int id) {
+            // mBitmap = BitmapFactory.decodeResource(getResources(), id);
+           // mDrawable = ContextCompat.getDrawable(getContext(), id);
             mBitmap = BitmapFactory.decodeResource(getResources(), id);
         }
 

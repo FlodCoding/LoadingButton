@@ -34,6 +34,7 @@ public class LoadingButton extends DrawableTextView {
     private int originalWidth;
     private int originalHeight;
     private int[] originalPadding = new int[4];
+    private int originalDrawablePadding = 0;
     private Drawable[] originalDrawables = new Drawable[] { null, null, null, null };
     private CharSequence mText;
 
@@ -110,7 +111,8 @@ public class LoadingButton extends DrawableTextView {
                     startProgressDrawable();
                 } else {
                     setCompoundDrawablesRelative(originalDrawables[0], originalDrawables[1], originalDrawables[2], originalDrawables[3]);
-                    setPadding(originalPadding[0], originalPadding[1], originalPadding[2], originalPadding[3]);
+                    setPadding(originalPadding[POSITION.START], originalPadding[POSITION.TOP], originalPadding[POSITION.END], originalPadding[POSITION.BOTTOM]);
+                    setCompoundDrawablePadding(0);
                     setText(mText);
                 }
 
@@ -216,6 +218,12 @@ public class LoadingButton extends DrawableTextView {
     }
 
     @Override
+    public void setCompoundDrawablePadding(int pad) {
+        originalDrawablePadding = getCompoundDrawablePadding();
+        super.setCompoundDrawablePadding(pad);
+    }
+
+    @Override
     public void setCompoundDrawablesRelative(@Nullable Drawable left, @Nullable Drawable top, @Nullable Drawable right, @Nullable Drawable bottom) {
         if (originalDrawables != null) {
             if (!(left instanceof CircularProgressDrawable))
@@ -298,11 +306,11 @@ public class LoadingButton extends DrawableTextView {
                 final Rect bounds = mProgressDrawable.getBounds();
                 int offsetX = getScrollX(), offsetY = getScrollY();
                 if (enableShrinkAnim) {
-                    offsetX += getPaddingStart();
-                    offsetY += getPaddingTop();
+                    offsetX += originalPadding[POSITION.START];
+                    offsetY += originalPadding[POSITION.TOP];
                 } else {
                     final int vspace = canvas.getHeight() - getCompoundPaddingTop() - getCompoundPaddingBottom();
-                    offsetX += getPaddingStart() + bounds.left - getCompoundDrawablePadding() - getCanvasTransX();
+                    offsetX += originalPadding[POSITION.START] + bounds.left - getCompoundDrawablePadding() - getCanvasTransX();
                     offsetY += getCompoundPaddingTop() + (vspace - bounds.height()) / 2 - getCanvasTransY();
                 }
 

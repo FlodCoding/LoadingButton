@@ -6,9 +6,9 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -19,11 +19,12 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.Px;
+import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
 /**
- * 1、控制drawable的大小
- * 2、文字居中时，drawable与textView一起居中
+ * 1、控制drawable的大小 √
+ * 2、文字居中时，drawable与textView一起居中 √
  * 3、getCompoundDrawablesRelative和getCompoundDrawables不一样
  */
 @SuppressWarnings("UnusedReturnValue")
@@ -34,14 +35,14 @@ public class LoadingButton extends DrawableTextView {
     private int originalWidth;
     private int originalHeight;
     private int[] originalPadding = new int[4];
-    private Drawable[] originalDrawables;
+    private Drawable[] originalDrawables = new Drawable[] { null, null, null, null };
     private CharSequence mText;
 
     private EndDrawable mEndDrawable;
 
-    private boolean enableShrinkAnim = true;   //是否开启收缩动画
+    private boolean enableShrinkAnim = false;   //是否开启收缩动画
 
-    private boolean isShrinkAnimFinished;
+    private boolean isShrink = true;
 
     private OnLoadingListener mOnLoadingListener;
 
@@ -73,7 +74,7 @@ public class LoadingButton extends DrawableTextView {
             setUpShrinkAnimator();
         }
 
-        mEndDrawable = new EndDrawable(R.drawable.ic_launcher);
+        mEndDrawable = new EndDrawable(R.drawable.ic_check_circle_black_24dp);
     }
 
     private void setUpShrinkAnimator() {
@@ -92,24 +93,33 @@ public class LoadingButton extends DrawableTextView {
             //onAnimationStart(Animator animation, boolean isReverse) 在7.0测试没有调用fuck
             @Override
             public void onAnimationStart(Animator animation) {
-                if (!isShrinkAnimFinished) {
+                if (isShrink) {
                     mText = getText();
                     setText("");
                 } else {
                     mProgressDrawable.stop();
                 }
+
+                if (mOnLoadingListener != null) {
+                    mOnLoadingListener.onShrinkStart(isShrink);
+                }
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (!isShrinkAnimFinished) {
+                if (isShrink) {
                     startProgressDrawable();
                 } else {
                     setCompoundDrawablesRelative(originalDrawables[0], originalDrawables[1], originalDrawables[2], originalDrawables[3]);
                     setPadding(originalPadding[0], originalPadding[1], originalPadding[2], originalPadding[3]);
                     setText(mText);
                 }
-                isShrinkAnimFinished = !isShrinkAnimFinished;
+
+                if (mOnLoadingListener != null) {
+                    mOnLoadingListener.onShrinkEnd(isShrink);
+                }
+
+                isShrink = !isShrink;
             }
 
         });
@@ -118,7 +128,7 @@ public class LoadingButton extends DrawableTextView {
 
     private void startProgressDrawable() {
         final int size = getLoadingSize();
-        mProgressDrawable.setStrokeWidth(size * 0.15f);
+        mProgressDrawable.setStrokeWidth(size * 0.12f);
         setDrawable(POSITION.START, mProgressDrawable, size, size);
         if (mOnLoadingListener != null) {
             mOnLoadingListener.onLoadingStart();
@@ -148,24 +158,13 @@ public class LoadingButton extends DrawableTextView {
         else {
             startProgressDrawable();
         }
-
-//        mEndDrawable.show();
     }
 
 
     public void stop() {
-        if (mOnLoadingListener != null) {
-            mOnLoadingListener.onLoadingEnd();
-        }
         mProgressDrawable.stop();
         mEndDrawable.show();
-       // mEndDrawable.hide();
     }
-
-    public void toggle() {
-
-    }
-
 
     public LoadingButton setEndDrawable(@DrawableRes int id) {
         mEndDrawable.setBitmap(id);
@@ -198,8 +197,7 @@ public class LoadingButton extends DrawableTextView {
 
     public int getLoadingSize() {
         if (mLoadingSize == 0) {
-            mLoadingSize = (int) ((getOriginalHeight() -
-                    getPaddingTop() - getPaddingBottom()) * 0.8);
+            mLoadingSize = (int) (measureTextHeight());
         }
         return mLoadingSize;
     }
@@ -259,12 +257,11 @@ public class LoadingButton extends DrawableTextView {
         private ObjectAnimator mAppearAnimator;
         private long duration = DEFAULT_END_DRAWABLE_DURATION;
         private float animValue;
-        private boolean isShowing;
 
 
         private EndDrawable(@DrawableRes int id) {
             setBitmap(id);
-            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+            mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
             mCirclePath = new Path();
             mAppearAnimator = ObjectAnimator.ofFloat(this, "animValue", 1.0f);
             mAppearAnimator.setDuration(DEFAULT_APPEAR_DURATION);
@@ -279,24 +276,17 @@ public class LoadingButton extends DrawableTextView {
                         public void run() {
                             setAnimValue(0);
                             beginShrinkAnim(false);
-
-                            if (mOnLoadingListener != null) {
-                                mOnLoadingListener.onEndDrawableEnd();
-                            }
                         }
                     }, duration);
                 }
             });
 
-
+            setEnableTextInCenter(true);
         }
-
 
         private void show() {
             mAppearAnimator.cancel();
             mAppearAnimator.start();
-
-            //setDrawable(POSITION.START, mDrawable, 60, 60);
         }
 
         private void hide() {
@@ -304,23 +294,13 @@ public class LoadingButton extends DrawableTextView {
             mAppearAnimator.reverse();
         }
 
-        private void toggle() {
-            isShowing = !isShowing;
-            if (isShowing)
-                show();
-            else
-                hide();
-        }
-
         private void draw(Canvas canvas) {
-            if (getAnimValue() > 0 && mProgressDrawable != null) {
-
-                final int compoundPaddingTop = getCompoundPaddingTop();
-                final int compoundPaddingBottom = getCompoundPaddingBottom();
+            if (getAnimValue() > 0 && mProgressDrawable != null && mBitmap != null) {
+                canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
                 final Rect bounds = mProgressDrawable.getBounds();
-                final int vspace = canvas.getHeight() - compoundPaddingTop - compoundPaddingBottom;
-                final int offsetX = getScrollX() + getPaddingStart();
-                final int offsetY = getScrollY() + compoundPaddingTop + (vspace - bounds.height()) / 2;
+                final int vspace = canvas.getHeight() - getCompoundPaddingTop() - getCompoundPaddingBottom();
+                final int offsetX = getScrollX() + getPaddingStart() - getCompoundDrawablePadding();
+                final int offsetY = getScrollY() + getCompoundPaddingTop() + (vspace - bounds.height()) / 2;
 
                 canvas.save();
                 canvas.translate(offsetX, offsetY);
@@ -343,7 +323,7 @@ public class LoadingButton extends DrawableTextView {
         }
 
         private void setBitmap(int id) {
-            mBitmap = BitmapFactory.decodeResource(getResources(), id);
+            mBitmap = getBitmap(id);
         }
 
         private void setDuration(long duration) {
@@ -352,12 +332,51 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
+    @Nullable
+    private Bitmap getBitmap(int resId) {
+        Drawable drawable = ContextCompat.getDrawable(getContext(), resId);
+        if (drawable != null) {
+            Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+            drawable.draw(canvas);
+            return bitmap;
+        }
+        return null;
+    }
+
+
     public interface OnLoadingListener {
         void onLoadingStart();
 
         void onLoadingEnd();
 
-        void onEndDrawableEnd();
+        void onShrinkStart(boolean isShrink);
+
+        void onShrinkEnd(boolean isShrink);
+    }
+
+    public static class OnLoadingListenerAdapter implements OnLoadingListener {
+
+        @Override
+        public void onLoadingStart() {
+
+        }
+
+        @Override
+        public void onLoadingEnd() {
+
+        }
+
+        @Override
+        public void onShrinkStart(boolean isShrink) {
+
+        }
+
+        @Override
+        public void onShrinkEnd(boolean isShrink) {
+
+        }
     }
 
 

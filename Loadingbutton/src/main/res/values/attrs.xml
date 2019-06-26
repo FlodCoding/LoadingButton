@@ -2,13 +2,14 @@
 <resources>
     <declare-styleable name="DrawableTextView">
 
-        <attr name="enableDrawableCenter" format="boolean"/>
+        <attr name="enableCenterDrawables" format="boolean"/>
+        <attr name="enableTextInCenter" format="boolean"/>
         <attr name="drawableStartWidth" format="dimension"/>
         <attr name="drawableStartHeight" format="dimension"/>
         <attr name="drawableTopWidth" format="dimension"/>
         <attr name="drawableTopHeight" format="dimension"/>
-        <attr name="drawableRightWidth" format="dimension"/>
-        <attr name="drawableRightHeight" format="dimension"/>
+        <attr name="drawableEndWidth" format="dimension"/>
+        <attr name="drawableEndHeight" format="dimension"/>
         <attr name="drawableBottomWidth" format="dimension"/>
         <attr name="drawableBottomHeight" format="dimension"/>
 

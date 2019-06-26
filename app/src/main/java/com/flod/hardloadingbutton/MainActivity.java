@@ -5,7 +5,6 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.flod.loadingbutton.DrawableTextView;
 import com.flod.loadingbutton.LoadingButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        view.setOnLoadingListener(new LoadingButton.OnLoadingListener() {
+        view.setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
             @Override
             public void onLoadingStart() {
                // view.setText("加载中");
@@ -39,19 +38,15 @@ public class MainActivity extends AppCompatActivity {
                 //view.setText("加载成功");
             }
 
-            @Override
-            public void onEndDrawableEnd() {
-                view.setText("我是文字");
-            }
         });
-
+/*
         final DrawableTextView view1 = findViewById(R.id.test3);
         view1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
             }
-        });
+        });*/
 
 
 

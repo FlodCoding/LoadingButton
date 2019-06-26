@@ -8,7 +8,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
@@ -40,7 +39,7 @@ public class LoadingButton extends DrawableTextView {
 
     private EndDrawable mEndDrawable;
 
-    private boolean enableShrinkAnim = false;   //是否开启收缩动画
+    private boolean enableShrinkAnim = true;   //是否开启收缩动画
 
     private boolean isShrink = true;
 
@@ -74,7 +73,7 @@ public class LoadingButton extends DrawableTextView {
             setUpShrinkAnimator();
         }
 
-        mEndDrawable = new EndDrawable(R.drawable.ic_check_circle_black_24dp);
+        mEndDrawable = new EndDrawable(R.drawable.ic_launcher);
     }
 
     private void setUpShrinkAnimator() {
@@ -296,11 +295,17 @@ public class LoadingButton extends DrawableTextView {
 
         private void draw(Canvas canvas) {
             if (getAnimValue() > 0 && mProgressDrawable != null && mBitmap != null) {
-                canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG));
                 final Rect bounds = mProgressDrawable.getBounds();
-                final int vspace = canvas.getHeight() - getCompoundPaddingTop() - getCompoundPaddingBottom();
-                final int offsetX = getScrollX() + getPaddingStart() - getCompoundDrawablePadding();
-                final int offsetY = getScrollY() + getCompoundPaddingTop() + (vspace - bounds.height()) / 2;
+                int offsetX = getScrollX(), offsetY = getScrollY();
+                if (enableShrinkAnim) {
+                    offsetX += getPaddingStart();
+                    offsetY += getPaddingTop();
+                } else {
+                    final int vspace = canvas.getHeight() - getCompoundPaddingTop() - getCompoundPaddingBottom();
+                    offsetX += getPaddingStart() + bounds.left - getCompoundDrawablePadding() - getCanvasTransX();
+                    offsetY += getCompoundPaddingTop() + (vspace - bounds.height()) / 2 - getCanvasTransY();
+                }
+
 
                 canvas.save();
                 canvas.translate(offsetX, offsetY);

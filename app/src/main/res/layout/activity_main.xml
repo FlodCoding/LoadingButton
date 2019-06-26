@@ -48,7 +48,7 @@
         android:text="登录"
         android:textColor="@android:color/holo_orange_dark"
         android:textSize="15sp"
-        android:drawablePadding="10dp"
+
         app:drawableEndHeight="50dp"
         app:drawableEndWidth="50dp" />
 

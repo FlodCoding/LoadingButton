@@ -36,9 +36,9 @@ public class DrawableTextView extends AppCompatTextView {
         int BOTTOM = 3;
     }
 
-    private Drawable[] mDrawables;
+    private Drawable[] mDrawables = new Drawable[]{null, null, null, null};
     private Rect[] mDrawablesBounds = new Rect[4];
-    //private Boolean[] isDrawablesOffset = new Boolean[]{false, false, false, false};
+    private int canvasTransX = 0, canvasTransY = 0;
 
     private float mTextWidth;
     private float mTextHeight;
@@ -64,8 +64,7 @@ public class DrawableTextView extends AppCompatTextView {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        mDrawables = getCompoundDrawablesRelative();
-
+        Drawable[] mDrawables = getCompoundDrawablesRelative();
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.DrawableTextView);
         enableCenterDrawables = array.getBoolean(R.styleable.DrawableTextView_enableCenterDrawables, true);
         enableTextInCenter = array.getBoolean(R.styleable.DrawableTextView_enableTextInCenter, false);
@@ -93,7 +92,8 @@ public class DrawableTextView extends AppCompatTextView {
             bottomBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableBottomHeight, mDrawables[POSITION.BOTTOM].getIntrinsicHeight());
         }
         array.recycle();
-        resetCompoundDrawablesRelative();
+        setCompoundDrawablesRelative(mDrawables[POSITION.START], mDrawables[POSITION.TOP], mDrawables[POSITION.END], mDrawables[POSITION.BOTTOM]);
+        //resetCompoundDrawablesRelative();
     }
 
 
@@ -122,14 +122,14 @@ public class DrawableTextView extends AppCompatTextView {
         if (enableCenterDrawables && isCenter) {
 
             //画布的偏移量
-            int tranX = 0, tranY = 0;
+            int transX = 0, transY = 0;
 
             if (mDrawables[POSITION.START] != null) {
                 Rect bounds = mDrawablesBounds[POSITION.START];
                 int offset = (int) calcOffset(POSITION.START);
                 mDrawables[POSITION.START].setBounds(bounds.left + offset, bounds.top,
                         bounds.right + offset, bounds.bottom);
-                tranX -= (mDrawablesBounds[POSITION.START].width() + getCompoundDrawablePadding()) >> 1;
+                transX -= (mDrawablesBounds[POSITION.START].width() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.TOP] != null) {
@@ -139,7 +139,7 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.TOP].setBounds(bounds.left, bounds.top + offset,
                         bounds.right, bounds.bottom + offset);
 
-                tranY -= (mDrawablesBounds[POSITION.TOP].height() + getCompoundDrawablePadding()) >> 1;
+                transY -= (mDrawablesBounds[POSITION.TOP].height() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.END] != null) {
@@ -148,7 +148,7 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.END].setBounds(bounds.left + offset, bounds.top,
                         bounds.right + offset, bounds.bottom);
 
-                tranX += (mDrawablesBounds[POSITION.END].width() + getCompoundDrawablePadding()) >> 1;
+                transX += (mDrawablesBounds[POSITION.END].width() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.BOTTOM] != null) {
@@ -157,11 +157,13 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.BOTTOM].setBounds(bounds.left, bounds.top + offset,
                         bounds.right, bounds.bottom + offset);
 
-                tranY += (mDrawablesBounds[POSITION.BOTTOM].height() + getCompoundDrawablePadding()) >> 1;
+                transY += (mDrawablesBounds[POSITION.BOTTOM].height() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (enableTextInCenter) {
-                canvas.translate(tranX, tranY);
+                //canvas.translate(transX, transY);
+                this.canvasTransX = transX;
+                this.canvasTransY = transY;
             }
         }
         super.onDraw(canvas);
@@ -190,6 +192,14 @@ public class DrawableTextView extends AppCompatTextView {
                 return 0;
 
         }
+    }
+
+    public int getCanvasTransX() {
+        return canvasTransX;
+    }
+
+    public int getCanvasTransY() {
+        return canvasTransY;
     }
 
     /**
@@ -229,7 +239,8 @@ public class DrawableTextView extends AppCompatTextView {
                 bounds.right = bounds.left + width;
                 bounds.bottom = bounds.top + height;
             }
-            mDrawables[position].setBounds(bounds);
+            mDrawables[position].setBounds(0, 0, bounds.right, bounds.bottom);
+            mDrawablesBounds[position] = bounds;
         }
         resetCompoundDrawablesRelative();
     }

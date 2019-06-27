@@ -24,16 +24,27 @@
 
         />-->
 
-
+<!--
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="200dp"
         android:layout_marginTop="300dp"
+        android:gravity="top"
+        android:text="44444444"
+        android:background="@android:color/background_dark"
+        android:textColor="@android:color/holo_orange_dark"
+        android:drawableStart="@drawable/ic_launcher"/>-->
 
-        android:drawableStart="@drawable/ic_launcher"
-        android:gravity="center"
-        android:padding="10dp"
-        android:text="44444444" />
+  <com.flod.loadingbutton.DrawableTextView
+      android:layout_width="300dp"
+      android:layout_height="wrap_content"
+      android:gravity="center"
+      android:background="@android:color/background_dark"
+      android:textColor="@android:color/holo_orange_dark"
+      android:drawableTop="@drawable/ic_launcher"
+
+      android:text="登录"
+      />
 
     <com.flod.loadingbutton.LoadingButton
         android:id="@+id/test2"
@@ -45,10 +56,10 @@
         android:gravity="center"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
+
         android:text="登录"
         android:textColor="@android:color/holo_orange_dark"
         android:textSize="15sp"
-
         app:drawableEndHeight="50dp"
         app:drawableEndWidth="50dp" />
 

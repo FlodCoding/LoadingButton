@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.Gravity;
-import android.view.ViewGroup;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
@@ -42,8 +41,8 @@ public class DrawableTextView extends AppCompatTextView {
 
     private float mTextWidth;
     private float mTextHeight;
-    private Rect mTextBounds = new Rect();
 
+    private boolean firstLayout;
     private boolean isCenter;                   //Gravity是否是居中
     private boolean enableCenterDrawables;      //drawable跟随文本居中
     private boolean enableTextInCenter;         //默认情况下文字与图片共同居中，开启后文字在最中间，图片紧挨
@@ -93,24 +92,28 @@ public class DrawableTextView extends AppCompatTextView {
         }
         array.recycle();
         setCompoundDrawablesRelative(mDrawables[POSITION.START], mDrawables[POSITION.TOP], mDrawables[POSITION.END], mDrawables[POSITION.BOTTOM]);
-        //resetCompoundDrawablesRelative();
     }
 
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        if (enableCenterDrawables) {
-            isCenter = getLayoutParams().width != ViewGroup.LayoutParams.WRAP_CONTENT
-                    && ((getGravity() & Gravity.CENTER) == Gravity.CENTER
-                    || (getGravity() & Gravity.CENTER_HORIZONTAL) == Gravity.CENTER_HORIZONTAL
-                    || (getGravity() & Gravity.CENTER_VERTICAL) == Gravity.CENTER_VERTICAL);
-
-
-            mTextWidth = measureTextWidth();
-            mTextHeight = measureTextHeight();
-        }
         super.onLayout(changed, left, top, right, bottom);
+        if (enableCenterDrawables) {
+            final int absoluteGravity = Gravity.getAbsoluteGravity(getGravity(), getLayoutDirection());
+            isCenter = (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL
+                    || (absoluteGravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL;
+        }
 
+        if (!firstLayout) {
+            onFirstLayout(left, top, right, bottom);
+            firstLayout = true;
+        }
+
+    }
+
+    protected void onFirstLayout(int left, int top, int right, int bottom) {
+        mTextWidth = measureTextWidth();
+        mTextHeight = measureTextHeight();
     }
 
     /**
@@ -161,14 +164,13 @@ public class DrawableTextView extends AppCompatTextView {
             }
 
             if (enableTextInCenter) {
-                //canvas.translate(transX, transY);
+                canvas.translate(transX, transY);
                 this.canvasTransX = transX;
                 this.canvasTransY = transY;
             }
         }
+
         super.onDraw(canvas);
-
-
     }
 
     /**
@@ -182,11 +184,11 @@ public class DrawableTextView extends AppCompatTextView {
         switch (position) {
             case POSITION.START:
             case POSITION.END:
-                return (getWidth() - (getCompoundPaddingStart() + getCompoundPaddingEnd() + mTextWidth)) / 2;
+                return (getWidth() - (getCompoundPaddingStart() + getCompoundPaddingEnd() + getTextWidth())) / 2;
 
             case POSITION.TOP:
             case POSITION.BOTTOM:
-                return (getHeight() - (getCompoundPaddingTop() + getCompoundPaddingBottom() + mTextHeight)) / 2;
+                return (getHeight() - (getCompoundPaddingTop() + getCompoundPaddingBottom() + getTextHeight())) / 2;
 
             default:
                 return 0;
@@ -194,22 +196,24 @@ public class DrawableTextView extends AppCompatTextView {
         }
     }
 
-    public int getCanvasTransX() {
+    protected int getCanvasTransX() {
         return canvasTransX;
     }
 
-    public int getCanvasTransY() {
+    protected int getCanvasTransY() {
         return canvasTransY;
     }
+
 
     /**
      * 测量文字的宽度，通过Paint测量所有文字的长度，
      * 但是这个数据不一定准确，文本还有可能换行，还需要通过{@link #getLineBounds}来获取文本的最大宽度
      */
     protected float measureTextWidth() {
-        getLineBounds(0, mTextBounds);
-        float width = getPaint().measureText(getText().toString());
-        float maxWidth = mTextBounds.right - mTextBounds.left;
+        final Rect textBounds = new Rect();
+        getLineBounds(0, textBounds);
+        final float width = getPaint().measureText(getText().toString());
+        final float maxWidth = textBounds.width();
         return width <= maxWidth ? width : maxWidth;
     }
 
@@ -220,6 +224,21 @@ public class DrawableTextView extends AppCompatTextView {
         return getLineHeight() * getLineCount();
     }
 
+    protected float getTextWidth() {
+        return mTextWidth;
+    }
+
+    public float getTextHeight() {
+        return mTextHeight;
+    }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+        mTextWidth = measureTextWidth();
+        mTextHeight = measureTextHeight();
+    }
+
     /**
      * 设置Drawable，并设置宽高
      *
@@ -228,7 +247,7 @@ public class DrawableTextView extends AppCompatTextView {
      * @param width    DX
      * @param height   DX
      */
-    public void setDrawable(int position, Drawable drawable, @Px int width, @Px int height) {
+    public void setDrawable(@POSITION int position, @Nullable Drawable drawable, @Px int width, @Px int height) {
         mDrawables[position] = drawable;
         if (drawable != null) {
             Rect bounds = new Rect();
@@ -239,7 +258,7 @@ public class DrawableTextView extends AppCompatTextView {
                 bounds.right = bounds.left + width;
                 bounds.bottom = bounds.top + height;
             }
-            mDrawables[position].setBounds(0, 0, bounds.right, bounds.bottom);
+            mDrawables[position].setBounds(bounds.left, bounds.top, bounds.right, bounds.bottom);
             mDrawablesBounds[position] = bounds;
         }
         resetCompoundDrawablesRelative();
@@ -343,12 +362,16 @@ public class DrawableTextView extends AppCompatTextView {
         return this;
     }
 
-    public void setEnableCenterDrawables(boolean enableCenterDrawables) {
-        this.enableCenterDrawables = enableCenterDrawables;
+    public void setEnableCenterDrawables(boolean enable) {
+        this.enableCenterDrawables = enable;
     }
 
-    public void setEnableTextInCenter(boolean enableTextInCenter) {
-        this.enableTextInCenter = enableTextInCenter;
+    public void setEnableTextInCenter(boolean enable) {
+        this.enableTextInCenter = enable;
+    }
+
+    public boolean isEnableTextInCenter() {
+        return enableTextInCenter;
     }
 
     public Drawable[] getDrawables() {

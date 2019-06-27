@@ -14,4 +14,9 @@
         <attr name="drawableBottomHeight" format="dimension"/>
 
     </declare-styleable>
+
+    <declare-styleable name="LoadingButton">
+        <attr name="enableShrink" format="boolean"/>
+
+    </declare-styleable>
 </resources>

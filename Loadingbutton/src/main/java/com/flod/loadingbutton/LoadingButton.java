@@ -21,6 +21,8 @@ import androidx.annotation.Px;
 import androidx.core.content.ContextCompat;
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 
+import java.util.Arrays;
+
 /**
  * 1、控制drawable的大小 √
  * 2、文字居中时，drawable与textView一起居中 √
@@ -39,10 +41,11 @@ public class LoadingButton extends DrawableTextView {
     private Drawable[] savedDrawables;
     private CharSequence savedText;
     private boolean savedEnableTextInCenter;
+    private int[] savedRootViewSize = new int[]{0, 0};
 
     private EndDrawable mEndDrawable;
 
-    private boolean enableShrinkAnim = false;   //是否开启收缩动画
+    private boolean enableShrinkAnim = true;   //是否开启收缩动画
 
     private boolean isShrink = true;
 
@@ -83,23 +86,36 @@ public class LoadingButton extends DrawableTextView {
     }
 
     private void setUpShrinkAnimator() {
-        mShrinkAnimator = new ValueAnimator();
+        mShrinkAnimator = ValueAnimator.ofFloat(0, 1f);
         mShrinkAnimator.setDuration(DEFAULT_SHRINK_DURATION);
         mShrinkAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                getLayoutParams().width = (int) animation.getAnimatedValue();
-                requestLayout();
+
+                    //x = (y - b)/k
+                    //y = kx + b
+
+                    // b = getHeight()
+                    // k = getHeight() - getLoadingSize
+                    // getLayoutParams().width  = (getHeight() - getLoadingSize())*animation.getAnimatedValue() + getHeight()
+                    //getLayoutParams().width = (int) animation.getAnimatedValue();
+                    getLayoutParams().width = (int) ((getLoadingDrawableSize()+60 - savedRootViewSize[0]) * (float) animation.getAnimatedValue() + savedRootViewSize[0]);
+                    getLayoutParams().height = (int) ((getLoadingDrawableSize()+60 - savedRootViewSize[1]) * (float) animation.getAnimatedValue() + savedRootViewSize[1]);
+                    requestLayout();
+
+
+
             }
         });
 
         mShrinkAnimator.addListener(new AnimatorListenerAdapter() {
             //onAnimationStart(Animator animation, boolean isReverse) 在7.0测试没有调用fuck
+
             @Override
             public void onAnimationStart(Animator animation) {
                 if (isShrink) {
                     savedText = getText();
-                    savedDrawables = getDrawables();
+                    savedDrawables = Arrays.copyOf(getDrawables(), 4);
                     savedEnableTextInCenter = isEnableTextInCenter();
 
                     setText("");
@@ -136,6 +152,8 @@ public class LoadingButton extends DrawableTextView {
 
     }
 
+
+
     private void startLoading() {
         mProgressDrawable.setStrokeWidth(getLoadingDrawableSize() * 0.12f);
         if (mOnLoadingListener != null) {
@@ -153,12 +171,10 @@ public class LoadingButton extends DrawableTextView {
     private void beginShrinkAnim(boolean isShrink) {
         if (enableShrinkAnim) {
             mShrinkAnimator.cancel();
-            if (mShrinkAnimator.getValues() == null) {
-                //TODO 保存原来的值吗？
-                mShrinkAnimator.setIntValues(getWidth(), getHeight());
-            }
-            if (isShrink)
+            if (isShrink){
+
                 mShrinkAnimator.start();
+            }
             else
                 mShrinkAnimator.reverse();
         }
@@ -226,6 +242,13 @@ public class LoadingButton extends DrawableTextView {
     @Override
     public void setCompoundDrawablePadding(int pad) {
         super.setCompoundDrawablePadding(pad);
+    }
+
+    @Override
+    protected void onFirstLayout(int left, int top, int right, int bottom) {
+        super.onFirstLayout(left, top, right, bottom);
+        savedRootViewSize[0] = getWidth();
+        savedRootViewSize[1] = getHeight();
     }
 
     @Override

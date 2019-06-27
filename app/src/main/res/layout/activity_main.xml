@@ -41,6 +41,7 @@
       android:gravity="center"
       android:background="@android:color/background_dark"
       android:textColor="@android:color/holo_orange_dark"
+      android:drawableBottom="@drawable/ic_launcher"
       android:drawableTop="@drawable/ic_launcher"
 
       android:text="登录"
@@ -48,18 +49,20 @@
 
     <com.flod.loadingbutton.LoadingButton
         android:id="@+id/test2"
-        android:layout_width="200dp"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:background="@android:color/background_dark"
         android:layout_gravity="bottom|center_horizontal"
-        android:layout_margin="15dp"
+
         android:gravity="center"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
+      android:drawableStart="@drawable/ic_launcher"
+        android:drawableEnd="@drawable/ic_launcher"
+        android:drawableTop="@drawable/ic_launcher"
 
         android:text="登录"
         android:textColor="@android:color/holo_orange_dark"
-        android:textSize="15sp"
+        android:textSize="18sp"
+        android:padding="20dp"
         app:drawableEndHeight="50dp"
         app:drawableEndWidth="50dp" />
 

@@ -2,21 +2,37 @@
 <resources>
     <declare-styleable name="DrawableTextView">
 
-        <attr name="enableCenterDrawables" format="boolean"/>
-        <attr name="enableTextInCenter" format="boolean"/>
-        <attr name="drawableStartWidth" format="dimension"/>
-        <attr name="drawableStartHeight" format="dimension"/>
-        <attr name="drawableTopWidth" format="dimension"/>
-        <attr name="drawableTopHeight" format="dimension"/>
-        <attr name="drawableEndWidth" format="dimension"/>
-        <attr name="drawableEndHeight" format="dimension"/>
-        <attr name="drawableBottomWidth" format="dimension"/>
-        <attr name="drawableBottomHeight" format="dimension"/>
+        <attr name="enableCenterDrawables" format="boolean" />
+        <attr name="enableTextInCenter" format="boolean" />
+        <attr name="drawableStartWidth" format="dimension" />
+        <attr name="drawableStartHeight" format="dimension" />
+        <attr name="drawableTopWidth" format="dimension" />
+        <attr name="drawableTopHeight" format="dimension" />
+        <attr name="drawableEndWidth" format="dimension" />
+        <attr name="drawableEndHeight" format="dimension" />
+        <attr name="drawableBottomWidth" format="dimension" />
+        <attr name="drawableBottomHeight" format="dimension" />
 
     </declare-styleable>
 
     <declare-styleable name="LoadingButton">
-        <attr name="enableShrink" format="boolean"/>
+        <attr name="enableShrink" format="boolean" />
+        <attr name="shrinkDuration" format="integer" />
+
+        <attr name="loadingDrawableSize" format="dimension"/>
+
+        <attr name="loadingDrawablePosition" format="enum">
+            <enum name="Start" value="0" />
+            <enum name="Top" value="1" />
+            <enum name="End" value="2" />
+            <enum name="Bottom" value="3" />
+        </attr>
+
+        <attr name="endDrawable" format="reference" />
+        <attr name="endDrawableDuration" format="integer" />
+
+
+
 
     </declare-styleable>
 </resources>

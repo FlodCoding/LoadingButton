@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import java.util.Arrays;
+
 /**
  * SimpleDes:
  * Creator: Flood
@@ -22,9 +24,12 @@ import androidx.appcompat.widget.AppCompatTextView;
  * 1、Gravity() = center 文字居中但图片没有居中 √
  * 2、设置Drawable的大小 √
  * 3、文字居中，图片靠边居中 √
- * 4、多次setCompoundDrawablesRelative,图片会发生偏移
+ * 4、多次setCompoundDrawablesRelative,图片会发生偏移 √
+ * 5、寻找一个合适的测量文字大小的时机，避免多次测量消耗性能 √
+ * 6、在draw时，避免用取出旧的drawable的bounds绘制，需要预先取出并存储起来,还需要注意在存储bounds时是不是有平移过 √
+ * 7、
  */
-@SuppressWarnings({"UnusedReturnValue", "unused"})
+@SuppressWarnings({"UnusedReturnValue", "unused", "SameParameterValue"})
 public class DrawableTextView extends AppCompatTextView {
 
     @IntDef({POSITION.START, POSITION.TOP, POSITION.END, POSITION.BOTTOM})
@@ -63,35 +68,35 @@ public class DrawableTextView extends AppCompatTextView {
     }
 
     private void init(Context context, AttributeSet attrs) {
-        Drawable[] mDrawables = getCompoundDrawablesRelative();
+        Drawable[] drawables = getCompoundDrawablesRelative();
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.DrawableTextView);
         enableCenterDrawables = array.getBoolean(R.styleable.DrawableTextView_enableCenterDrawables, true);
         enableTextInCenter = array.getBoolean(R.styleable.DrawableTextView_enableTextInCenter, false);
-        if (mDrawables[POSITION.START] != null) {
-            Rect startBounds = mDrawables[POSITION.START].getBounds();
-            startBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableStartWidth, mDrawables[POSITION.START].getIntrinsicWidth());
-            startBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableStartHeight, mDrawables[POSITION.START].getIntrinsicHeight());
+        if (drawables[POSITION.START] != null) {
+            Rect startBounds = drawables[POSITION.START].getBounds();
+            startBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableStartWidth, drawables[POSITION.START].getIntrinsicWidth());
+            startBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableStartHeight, drawables[POSITION.START].getIntrinsicHeight());
         }
 
-        if (mDrawables[POSITION.TOP] != null) {
-            Rect topBounds = mDrawables[POSITION.TOP].getBounds();
-            topBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableTopWidth, mDrawables[POSITION.TOP].getIntrinsicWidth());
-            topBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableTopHeight, mDrawables[POSITION.TOP].getIntrinsicHeight());
+        if (drawables[POSITION.TOP] != null) {
+            Rect topBounds = drawables[POSITION.TOP].getBounds();
+            topBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableTopWidth, drawables[POSITION.TOP].getIntrinsicWidth());
+            topBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableTopHeight, drawables[POSITION.TOP].getIntrinsicHeight());
         }
 
-        if (mDrawables[POSITION.END] != null) {
-            Rect endBounds = mDrawables[POSITION.END].getBounds();
-            endBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableEndWidth, mDrawables[POSITION.END].getIntrinsicWidth());
-            endBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableEndHeight, mDrawables[POSITION.END].getIntrinsicHeight());
+        if (drawables[POSITION.END] != null) {
+            Rect endBounds = drawables[POSITION.END].getBounds();
+            endBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableEndWidth, drawables[POSITION.END].getIntrinsicWidth());
+            endBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableEndHeight, drawables[POSITION.END].getIntrinsicHeight());
         }
 
-        if (mDrawables[POSITION.BOTTOM] != null) {
-            Rect bottomBounds = mDrawables[POSITION.BOTTOM].getBounds();
-            bottomBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableBottomWidth, mDrawables[POSITION.BOTTOM].getIntrinsicWidth());
-            bottomBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableBottomHeight, mDrawables[POSITION.BOTTOM].getIntrinsicHeight());
+        if (drawables[POSITION.BOTTOM] != null) {
+            Rect bottomBounds = drawables[POSITION.BOTTOM].getBounds();
+            bottomBounds.right = (int) array.getDimension(R.styleable.DrawableTextView_drawableBottomWidth, drawables[POSITION.BOTTOM].getIntrinsicWidth());
+            bottomBounds.bottom = (int) array.getDimension(R.styleable.DrawableTextView_drawableBottomHeight, drawables[POSITION.BOTTOM].getIntrinsicHeight());
         }
         array.recycle();
-        setCompoundDrawablesRelative(mDrawables[POSITION.START], mDrawables[POSITION.TOP], mDrawables[POSITION.END], mDrawables[POSITION.BOTTOM]);
+        setCompoundDrawablesRelative(drawables[POSITION.START], drawables[POSITION.TOP], drawables[POSITION.END], drawables[POSITION.BOTTOM]);
     }
 
 
@@ -261,16 +266,7 @@ public class DrawableTextView extends AppCompatTextView {
             mDrawables[position].setBounds(bounds.left, bounds.top, bounds.right, bounds.bottom);
             mDrawablesBounds[position] = bounds;
         }
-        resetCompoundDrawablesRelative();
-    }
-
-    private void resetCompoundDrawablesRelative() {
         setCompoundDrawablesRelative(mDrawables[POSITION.START], mDrawables[POSITION.TOP], mDrawables[POSITION.END], mDrawables[POSITION.BOTTOM]);
-    }
-
-    private int dp2px(float dpValue) {
-        final float scale = getContext().getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
     }
 
 
@@ -310,6 +306,26 @@ public class DrawableTextView extends AppCompatTextView {
             mDrawables[POSITION.BOTTOM] = bottom;
         }
 
+    }
+
+
+    protected Drawable[] copyDrawables(boolean clearOffset) {
+        Drawable[] drawables = Arrays.copyOf(getDrawables(), 4);
+        //clear offset
+        if (clearOffset) {
+            for (Drawable drawable : drawables) {
+                if (drawable != null) {
+                    Rect bounds = drawable.getBounds();
+                    bounds.offset(-bounds.left, -bounds.top);
+                }
+            }
+        }
+        return drawables;
+    }
+
+    protected int dp2px(float dpValue) {
+        final float scale = getContext().getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 
 

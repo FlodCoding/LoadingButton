@@ -5,6 +5,7 @@ import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.flod.loadingbutton.DrawableTextView;
 import com.flod.loadingbutton.LoadingButton;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!mBoolean) {
                     view.start();
                 } else
-                    view.stop();
+                    view.end();
 
             }
         });
@@ -40,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
         });
-/*
+
+        /*
         final DrawableTextView view1 = findViewById(R.id.test3);
         view1.setOnClickListener(new View.OnClickListener() {
             @Override

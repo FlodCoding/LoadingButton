@@ -28,6 +28,9 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
  * 3、收缩后的大小随loading的大小决定
  * 4、设置loading 可以设置为上下左右
  * 5、重复start的动画处理
+ * 6、恢复动画还没结束时，点击收缩会变成恢复的状态
+ * 7、正在显示EndDrawable时，再次点击start会变成恢复状态的加载
+ *    先执行 beginShrinkAnim(true) 后执行 beginShrinkAnim(false);
  */
 @SuppressWarnings("UnusedReturnValue,SameParameterValue")
 public class LoadingButton extends DrawableTextView {
@@ -144,43 +147,60 @@ public class LoadingButton extends DrawableTextView {
             }
 
             @Override
-            public void onAnimationCancel(Animator animation) {
-                super.onAnimationCancel(animation);
-                isAnimRunning = false;
-                // Log.d("Animation", "onAnimationCancel");
-            }
-
-            @Override
             public void onAnimationEnd(Animator animation) {
                 //Log.d("Animation", "onAnimationEnd");
                 if (mOnLoadingListener != null) {
                     mOnLoadingListener.onShrinkEnd(isShrinkAnimReverse);
                 }
-                //Log.d("Animation", "isAnimRunning= " + isAnimRunning);
-                if (isAnimRunning) {
-                    if (!isShrinkAnimReverse) {
-                        //收缩结束
-                        startLoading();
-                    } else {
-                        //恢复结束
-                        restoreStatus();
-                        setEnabled(true);
-                        isAnimRunning = false;
-                    }
+                if (!isShrinkAnimReverse) {
+                    //收缩结束
+                    startLoading();
                 } else {
+                    //恢复结束
                     stopLoading();
                     restoreStatus();
                     setEnabled(true);
                     isAnimRunning = false;
                 }
-
-                //Log.d("Animation", "isAnimRunning= " + isAnimRunning);
-                //Log.d("Animation", "isShrinkAnimReverse= " + isShrinkAnimReverse);
                 isShrinkAnimReverse = !isShrinkAnimReverse;
             }
 
         });
 
+
+    }
+
+    public void start() {
+        Log.d("Animation", "start");
+        if (enableShrink) {
+
+            //TODO 如果mEndDrawable mEndDrawable.isShowing 且准备执行 beginShrinkAnim(false); 就会冲突
+            if (mEndDrawable != null && mEndDrawable.isShowing) {
+                //想办法先让上一个动画先结束
+                mEndDrawable.cancel();
+            }
+            beginShrinkAnim(true, false);
+        } else {
+            startLoading();
+        }
+
+    }
+
+    public void end() {
+        if (mEndDrawable == null) {
+            if (mOnLoadingListener != null) {
+                mOnLoadingListener.onLoadingEnd();
+            }
+            beginShrinkAnim(false, false);
+        } else {
+            if (mShrinkAnimator.isRunning()) {
+                //结束正在收缩的动画
+                mShrinkAnimator.end();
+            }
+            stopLoading();
+            Log.d("Animation", "end");
+            mEndDrawable.show();
+        }
 
     }
 
@@ -209,16 +229,21 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
-    private void beginShrinkAnim(boolean isShrink) {
-
+    private void beginShrinkAnim(boolean isShrink, boolean lastFrame) {
         Log.d("Animation", "isShrink" + isShrink);
         if (enableShrink) {
-            //isShrinkAnimReverse = !isShrink;
-            mShrinkAnimator.cancel();
+            if (mShrinkAnimator.isRunning()) {
+                //如果上一个动画还在执行，就结束到最后一帧
+                mShrinkAnimator.end();
+            }
             if (isShrink) {
                 mShrinkAnimator.start();
             } else {
                 mShrinkAnimator.reverse();
+            }
+
+            if (lastFrame) {
+                mShrinkAnimator.end();
             }
 
         }
@@ -323,6 +348,8 @@ public class LoadingButton extends DrawableTextView {
         private ObjectAnimator mAppearAnimator;
         private long duration;
         private float animValue;
+        private boolean isShowing;
+        private Runnable mRunnable;
 
 
         private EndDrawable(@DrawableRes int id) {
@@ -332,34 +359,54 @@ public class LoadingButton extends DrawableTextView {
             mCirclePath = new Path();
             mAppearAnimator = ObjectAnimator.ofFloat(this, "animValue", 1.0f);
             mAppearAnimator.setDuration(DEFAULT_APPEAR_DURATION);
+            mRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("Animation", "onEndDrawableAnimationEnd");
+                    setAnimValue(0);
+                    if (enableShrink && isAnimRunning) {
+                        beginShrinkAnim(false, false);
+                    } else {
+                        setEnabled(true);
+                        isAnimRunning = false;
+                    }
+                    isShowing = false;
+                }
+            };
             mAppearAnimator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     if (mOnLoadingListener != null) {
                         mOnLoadingListener.onLoadingEnd();
                     }
-                    postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d("Animation", "onEndDrawableAnimationEnd");
-                            setAnimValue(0);
-                            if (enableShrink && isAnimRunning) {
-                                beginShrinkAnim(false);
-                            } else {
-                                setEnabled(true);
-                                isAnimRunning = false;
-                            }
-                        }
-                    }, duration);
+                    if (isShowing) {
+                        postDelayed(mRunnable, duration);
+                    }
                 }
             });
 
         }
 
         private void show() {
-            mAppearAnimator.cancel();
+            //如果仍在显示中，结束动画
+            if (isShowing) {
+                cancel();
+            }
             mAppearAnimator.start();
+            isShowing = true;
         }
+
+        private void cancel() {
+            isShowing = false;
+            if (mAppearAnimator.isRunning()) {
+                //出现中
+                mAppearAnimator.end();
+            }
+            getHandler().removeCallbacks(mRunnable);
+            beginShrinkAnim(false, true);
+            setAnimValue(0);
+        }
+
 
         private void hide() {
             mAppearAnimator.cancel();
@@ -502,36 +549,6 @@ public class LoadingButton extends DrawableTextView {
         mOnLoadingListener = onLoadingListener;
     }
 
-
-    public void start() {
-        Log.d("Animation", "start");
-        if (enableShrink)
-            beginShrinkAnim(true);
-        else {
-            startLoading();
-        }
-
-    }
-
-    public void stop() {
-
-        if (mEndDrawable == null) {
-            if (mOnLoadingListener != null) {
-                mOnLoadingListener.onLoadingEnd();
-            }
-            beginShrinkAnim(false);
-        } else {
-            if (mShrinkAnimator.isRunning()) {
-                isAnimRunning = false;
-                mShrinkAnimator.end();
-                isShrinkAnimReverse = true;
-            }
-            //mShrinkAnimator.cancel();
-            Log.d("Animation", "stop");
-            mEndDrawable.show();
-        }
-
-    }
 
     private void cancel() {
 

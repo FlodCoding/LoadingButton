@@ -257,11 +257,11 @@ public class DrawableTextView extends AppCompatTextView {
         if (drawable != null) {
             Rect bounds = new Rect();
             if (width == -1 && height == -1) {
-                bounds.right = bounds.left + drawable.getIntrinsicWidth();
-                bounds.bottom = bounds.top + drawable.getIntrinsicHeight();
+                bounds.right = drawable.getIntrinsicWidth();
+                bounds.bottom = drawable.getIntrinsicHeight();
             } else {
-                bounds.right = bounds.left + width;
-                bounds.bottom = bounds.top + height;
+                bounds.right = width;
+                bounds.bottom = height;
             }
             mDrawables[position].setBounds(bounds.left, bounds.top, bounds.right, bounds.bottom);
             mDrawablesBounds[position] = bounds;

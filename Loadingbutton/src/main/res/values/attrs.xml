@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="DrawableTextView">
-
         <attr name="enableCenterDrawables" format="boolean" />
         <attr name="enableTextInCenter" format="boolean" />
         <attr name="drawableStartWidth" format="dimension" />
@@ -12,15 +11,13 @@
         <attr name="drawableEndHeight" format="dimension" />
         <attr name="drawableBottomWidth" format="dimension" />
         <attr name="drawableBottomHeight" format="dimension" />
-
     </declare-styleable>
 
     <declare-styleable name="LoadingButton">
         <attr name="enableShrink" format="boolean" />
         <attr name="shrinkDuration" format="integer" />
-
         <attr name="loadingDrawableSize" format="dimension"/>
-
+        <attr name="loadingDrawableColor" format="color"/>
         <attr name="loadingDrawablePosition" format="enum">
             <enum name="Start" value="0" />
             <enum name="Top" value="1" />
@@ -29,6 +26,7 @@
         </attr>
 
         <attr name="endDrawable" format="reference" />
+        <attr name="endDrawableAppearTime" format="integer" />
         <attr name="endDrawableDuration" format="integer" />
 
 

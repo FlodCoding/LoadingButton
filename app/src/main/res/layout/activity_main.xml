@@ -1,73 +1,289 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_height="match_parent">
 
-    <!--  <com.flod.loadingbutton.DrawableTextView
-          android:id="@+id/test3"
-          android:layout_width="match_parent"
-          android:layout_height="300dp"
-          android:drawableStart="@drawable/ic_launcher"
-
-
-          android:drawableEnd="@drawable/ic_launcher"
-          android:drawableBottom="@drawable/ic_launcher"
-          android:gravity="center"
-
-          android:text="555555"
-          app:drawableBottomHeight="90dp"
-          app:drawableEndHeight="20dp"
-          app:drawableEndWidth="100dp"
-
-          />-->
-
-    <!--
-        <TextView
-            android:layout_width="300dp"
-            android:layout_height="200dp"
-            android:layout_marginTop="300dp"
-            android:gravity="top"
-            android:text="44444444"
-            android:background="@android:color/background_dark"
-            android:textColor="@android:color/holo_orange_dark"
-            android:drawableStart="@drawable/ic_launcher"/>-->
-
-    <com.flod.loadingbutton.DrawableTextView
-        android:layout_width="300dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/background_dark"
-        android:drawableTop="@drawable/ic_launcher"
-        android:drawableBottom="@drawable/ic_launcher"
-        android:gravity="center"
-        android:text="登录"
+        android:orientation="vertical"
+        android:padding="15dp"
+        tools:context=".MainActivity"
+        tools:ignore="HardcodedText,ContentDescription">
 
-        android:textColor="@android:color/holo_orange_dark" />
+        <com.flod.loadingbutton.LoadingButton
+            android:id="@+id/loadingBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/selector_btn"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="Submit"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:drawablePadding="10dp"
+            app:enableShrink="true"
+            app:endDrawable="@drawable/ic_successful"
+            app:loadingDrawablePosition="Start"
+            tools:ignore="HardcodedText" />
 
-    <com.flod.loadingbutton.LoadingButton
-        android:id="@+id/test2"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:background="@android:color/background_dark"
+        <Switch
+            android:id="@+id/swEnableShrink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Enable Shrink" />
 
-        android:drawableStart="@drawable/ic_launcher"
-        android:drawableEnd="@drawable/ic_launcher"
-        android:drawablePadding="20dp"
-        android:gravity="center"
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
 
-        android:text="登录"
-        android:textColor="@android:color/holo_orange_dark"
-        android:textSize="18sp"
-        android:padding="10dp"
-        app:drawableEndHeight="25dp"
-        app:drawableEndWidth="25dp"
-        app:enableShrink="true"
-        app:endDrawable="@drawable/ic_launcher"
-        app:loadingDrawablePosition="End"
-        app:loadingDrawableSize="80dp" />
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Shrink Duration" />
+
+            <TextView
+                android:id="@+id/tvShrinkDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="600ms" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="LoadingDrawableColor" />
+
+            <TextView
+                android:id="@+id/tvLoadingDrawableColor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="TextColor" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="LoadingPosition" />
+
+            <TextView
+                android:id="@+id/tvLoadingPosition"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="START" />
+        </RelativeLayout>
 
 
-</FrameLayout>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="EndDrawableIcon" />
+
+            <ImageView
+                android:id="@+id/imEndDrawableIcon"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/ic_successful" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="EndDrawableAppearTime" />
+
+            <TextView
+                android:id="@+id/tvEndDrawableAppearTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="300ms" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="EndDrawableDuration" />
+
+            <TextView
+                android:id="@+id/tvEndDrawableDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="1500ms" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Loading&#038;EndDrawableSize" />
+
+            <TextView
+                android:id="@+id/tvLoadingEndDrawableSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="TextSize" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LoadingText" />
+
+            <TextView
+                android:id="@+id/tvLoadingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="Loading" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LoadingCompleteText" />
+
+            <TextView
+                android:id="@+id/tvLoadingCompleteText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="Complete" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            tools:ignore="ButtonStyle">
+
+            <Button
+                android:id="@+id/start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="start" />
+
+            <Button
+                android:id="@+id/cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="cancel" />
+
+            <Button
+                android:id="@+id/end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="complete" />
+
+        </RelativeLayout>
+
+       <!-- <com.flod.loadingbutton.DrawableTextView
+            android:id="@+id/loadingBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="50dp"
+            android:drawableTop="@drawable/ic_launcher"
+            android:background="@drawable/selector_btn"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Submit"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:drawableStartWidth="14dp"
+            app:drawableEndHeight="14dp"
+            android:drawablePadding="10dp"
+            app:enableShrink="true"
+            app:enableTextInCenter="true"
+            app:loadingDrawablePosition="Start"
+            tools:ignore="HardcodedText" />-->
+
+    </LinearLayout>
+</ScrollView>
+

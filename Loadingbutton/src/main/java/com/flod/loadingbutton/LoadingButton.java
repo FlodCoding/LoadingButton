@@ -59,11 +59,10 @@ public class LoadingButton extends DrawableTextView {
     private ValueAnimator mShrinkAnimator;
     private int mShrinkDuration;
     private CircularProgressDrawable mLoadingDrawable;
+    private OnLoadingListener mOnLoadingListener;
     private EndDrawable mEndDrawable;
     private int mLoadingSize;
     private int mLoadingPosition;
-
-    private OnLoadingListener mOnLoadingListener;
 
 
     private boolean isShrinkAnimReverse;
@@ -87,7 +86,6 @@ public class LoadingButton extends DrawableTextView {
     }
 
     private void init(Context context, AttributeSet attrs) {
-
 
         //getConfig
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.LoadingButton);
@@ -121,9 +119,11 @@ public class LoadingButton extends DrawableTextView {
 
         //initShrinkAnimator
         setUpShrinkAnimator();
-        if (mLoadingPosition % 2 == 0 || enableShrink)
+        //TODO
+        setEnableTextInCenter(true);
+      /*  if (mLoadingPosition % 2 == 0 || enableShrink)
             setEnableTextInCenter(true);
-
+*/
         if (getRootView().isInEditMode()) {
             mLoadingDrawable.setStartEndTrim(0, 0.8f);
         }
@@ -331,16 +331,22 @@ public class LoadingButton extends DrawableTextView {
 
     public void complete() {
         if (mEndDrawable != null) {
-            mEndDrawable.show(true);
+            if (curStatus == STATE.LOADING)
+                mEndDrawable.show(true, true);
+            else
+                mEndDrawable.show(true, false);
         } else {
-            beginShrinkAnim(true, false);
+            if (curStatus == STATE.LOADING)
+                beginShrinkAnim(true, false);
+            else
+                beginShrinkAnim(true, true);
         }
     }
 
     public void fail() {
         isFail = true;
         if (mEndDrawable != null) {
-            mEndDrawable.show(false);
+            mEndDrawable.show(false, true);
         } else {
             beginShrinkAnim(true, false);
         }
@@ -530,7 +536,9 @@ public class LoadingButton extends DrawableTextView {
         private ObjectAnimator mAppearAnimator;
         private long duration;
         private float animValue;
+        int[] offsetTemp = new int[]{0, 0};
         private boolean isShowing;
+        private boolean shrink;
         private Runnable mRunnable;
 
         private EndDrawable(@Nullable Drawable completeDrawable, @Nullable Drawable failDrawable) {
@@ -554,7 +562,7 @@ public class LoadingButton extends DrawableTextView {
                 @Override
                 public void run() {
                     setAnimValue(0);
-                    if (enableShrink) {
+                    if (shrink) {
                         beginShrinkAnim(true, false);
                     } else {
                         endCallbackListener();
@@ -586,7 +594,7 @@ public class LoadingButton extends DrawableTextView {
         }
 
 
-        private void show(boolean isSuccess) {
+        private void show(boolean isSuccess, boolean shrink) {
             //end running Shrinking
             if (mShrinkAnimator.isRunning()) {
                 mShrinkAnimator.end();
@@ -604,6 +612,7 @@ public class LoadingButton extends DrawableTextView {
             }
             mAppearAnimator.start();
             isShowing = true;
+            this.shrink = shrink;
         }
 
         private void cancel(boolean withAnim) {
@@ -627,7 +636,7 @@ public class LoadingButton extends DrawableTextView {
         }
 
         private int[] calcOffset(Canvas canvas, Rect bounds, @POSITION int pos) {
-            int[] offset = new int[]{0, 0};
+            final int[] offset = offsetTemp;
             offset[0] = canvas.getWidth() / 2;
             offset[1] = canvas.getHeight() / 2;
             switch (pos) {
@@ -640,11 +649,28 @@ public class LoadingButton extends DrawableTextView {
                     break;
                 }
                 case POSITION.TOP: {
+                    //TODO Test
+
                     offset[0] -= bounds.width() / 2;
-                    offset[1] -= (int) getTextHeight() / 2 + bounds.height() + getCompoundDrawablePadding();
-                    if (enableShrink && isShrinkAnimReverse) {
-                        offset[1] += bounds.height() / 2;
+
+                    if (enableShrink) {
+                        offset[1] -= bounds.height() / 2;
+                    } else {
+                        offset[1] -= (getTextHeight() + bounds.height() + getCompoundDrawablePadding()) / 2;
+                        if (isEnableTextInCenter()) {
+                            offset[1] -= getCompoundDrawablePadding() / 2;
+                        }
                     }
+
+                   /* offset[1] -= (int) getTextHeight() / 2 + bounds.height() + getCompoundDrawablePadding();
+                    if (enableShrink) {
+                        if (isShrinkAnimReverse)
+                            offset[1] += bounds.height() / 2;
+                    }
+
+                    if (!enableShrink && !isEnableTextInCenter()) {
+                        offset[1] += (bounds.height() + getCompoundDrawablePadding()) >> 1;
+                    }*/
                     break;
                 }
                 case POSITION.END: {

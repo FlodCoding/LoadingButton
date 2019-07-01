@@ -27,10 +27,10 @@
             android:text="Submit"
             android:textColor="@android:color/white"
             android:textSize="14sp"
-            app:enableShrink="false"
+            app:enableShrink="true"
             app:endCompleteDrawable="@drawable/ic_successful"
             app:endFailDrawable="@drawable/ic_fail"
-            app:loadingDrawablePosition="Top"
+            app:loadingDrawablePosition="Start"
             app:enableTextInCenter="false"
             tools:ignore="HardcodedText" />
 

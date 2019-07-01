@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent">
 
     <LinearLayout
@@ -18,31 +18,72 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="10dp"
             android:background="@drawable/selector_btn"
+            android:drawablePadding="10dp"
             android:gravity="center"
-            android:padding="20dp"
+            android:minHeight="45dp"
+            android:padding="8dp"
             android:text="Submit"
             android:textColor="@android:color/white"
-            android:textSize="18sp"
-            android:drawablePadding="10dp"
-            app:enableShrink="true"
-            app:endDrawable="@drawable/ic_successful"
-            app:loadingDrawablePosition="Start"
+            android:textSize="14sp"
+            app:enableShrink="false"
+            app:endCompleteDrawable="@drawable/ic_successful"
+            app:endFailDrawable="@drawable/ic_fail"
+            app:loadingDrawablePosition="Top"
+            app:enableTextInCenter="false"
             tools:ignore="HardcodedText" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            tools:ignore="ButtonStyle">
+
+            <Button
+                android:id="@+id/btCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="cancel" />
+
+            <Button
+                android:id="@+id/btFail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:text="fail" />
+
+            <Button
+                android:id="@+id/btComplete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="complete" />
+
+        </RelativeLayout>
 
         <Switch
             android:id="@+id/swEnableShrink"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:checked="true"
             android:text="Enable Shrink" />
+
+        <Switch
+            android:id="@+id/swDisableOnLoading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:checked="true"
+            android:text="Disable OnLoading" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -57,13 +98,13 @@
                 android:layout_alignParentEnd="true"
                 android:background="@drawable/shape_btn"
                 android:padding="6dp"
-                android:text="600ms" />
+                android:text="500ms" />
         </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -85,7 +126,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -106,9 +147,10 @@
 
 
         <RelativeLayout
+            android:id="@+id/layEndDrawableIcon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -118,8 +160,8 @@
 
             <ImageView
                 android:id="@+id/imEndDrawableIcon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/ic_successful" />
@@ -128,29 +170,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="EndDrawableAppearTime" />
-
-            <TextView
-                android:id="@+id/tvEndDrawableAppearTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="300ms" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -172,7 +192,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -188,18 +208,41 @@
                 android:layout_centerVertical="true"
                 android:background="@drawable/shape_btn"
                 android:padding="6dp"
-                android:text="TextSize" />
+                android:text="TextSize * 2" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="LoadingStrokeWidth" />
+
+            <TextView
+                android:id="@+id/tvLoadingStrokeWidth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="TextSize * 0.12" />
         </RelativeLayout>
 
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="15dp">
+            android:layout_marginTop="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:text="LoadingText" />
 
             <TextView
@@ -207,6 +250,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:background="@drawable/shape_btn"
                 android:padding="6dp"
                 android:text="Loading" />
@@ -221,6 +265,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
                 android:text="LoadingCompleteText" />
 
             <TextView
@@ -228,61 +273,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
                 android:background="@drawable/shape_btn"
                 android:padding="6dp"
                 android:text="Complete" />
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:orientation="horizontal"
-            tools:ignore="ButtonStyle">
-
-            <Button
-                android:id="@+id/start"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentStart="true"
-                android:text="start" />
-
-            <Button
-                android:id="@+id/cancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:text="cancel" />
-
-            <Button
-                android:id="@+id/end"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:text="complete" />
-
-        </RelativeLayout>
-
-       <!-- <com.flod.loadingbutton.DrawableTextView
-            android:id="@+id/loadingBtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="top|center_horizontal"
-            android:layout_marginTop="50dp"
-            android:drawableTop="@drawable/ic_launcher"
-            android:background="@drawable/selector_btn"
-            android:gravity="center"
-            android:padding="10dp"
-            android:text="Submit"
-            android:textColor="@android:color/white"
-            android:textSize="18sp"
-            app:drawableStartWidth="14dp"
-            app:drawableEndHeight="14dp"
-            android:drawablePadding="10dp"
-            app:enableShrink="true"
-            app:enableTextInCenter="true"
-            app:loadingDrawablePosition="Start"
-            tools:ignore="HardcodedText" />-->
 
     </LinearLayout>
 </ScrollView>

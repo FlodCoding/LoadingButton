@@ -266,7 +266,7 @@ public class DrawableTextView extends AppCompatTextView {
             mDrawables[position].setBounds(bounds.left, bounds.top, bounds.right, bounds.bottom);
             mDrawablesBounds[position] = bounds;
         }
-        setCompoundDrawablesRelative(mDrawables[POSITION.START], mDrawables[POSITION.TOP], mDrawables[POSITION.END], mDrawables[POSITION.BOTTOM]);
+        super.setCompoundDrawablesRelative(mDrawables[POSITION.START], mDrawables[POSITION.TOP], mDrawables[POSITION.END], mDrawables[POSITION.BOTTOM]);
     }
 
 

@@ -29,16 +29,14 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
  * 5、重复start的动画处理
  * 6、恢复动画还没结束时，点击收缩会变成恢复的状态
  * 7、正在显示EndDrawable时，再次点击start会变成恢复状态的加载
- *    先执行 beginShrinkAnim(true) 后执行 beginShrinkAnim(false);
- *
+ * 先执行 beginShrinkAnim(true) 后执行 beginShrinkAnim(false);
+ * <p>
  * 8、多次start和end 会出错
  * 9、设置完Drawable大小后，start后再次设置rootView大小失控
+ * 10、start和compete同时按Loading没有关
  */
 @SuppressWarnings({"UnusedReturnValue,SameParameterValue", "unused"})
 public class LoadingButton extends DrawableTextView {
-    private CircularProgressDrawable mLoadingDrawable;
-    private ValueAnimator mShrinkAnimator;
-    private boolean isAnimRunning;
     private int curStatus = STATE.IDE;
 
     interface STATE {
@@ -53,21 +51,24 @@ public class LoadingButton extends DrawableTextView {
     private int mDrawablePaddingSaved;
     private CharSequence mTextSaved;
     private boolean mEnableTextInCenterSaved;
+    private boolean mViewEnableSaved;
     private int[] mRootViewSizeSaved = new int[]{0, 0};
 
-    private EndDrawable mEndDrawable;
-
-    private boolean enableShrink;   //是否开启收缩动画
+    private boolean disableClickOnLoading;   //动画中禁用点击
+    private boolean enableShrink;            //是否开启收缩动画
+    private ValueAnimator mShrinkAnimator;
     private int mShrinkDuration;
-
-    private boolean isShrinkAnimReverse;
-
+    private CircularProgressDrawable mLoadingDrawable;
+    private EndDrawable mEndDrawable;
+    private int mLoadingSize;
+    private int mLoadingPosition;
 
     private OnLoadingListener mOnLoadingListener;
 
-    private int mLoadingSize;
 
-    private int mLoadingPosition;
+    private boolean isShrinkAnimReverse;
+    private boolean isCancel;
+    private boolean isFail;
 
 
     public LoadingButton(Context context) {
@@ -87,14 +88,17 @@ public class LoadingButton extends DrawableTextView {
 
     private void init(Context context, AttributeSet attrs) {
 
+
         //getConfig
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.LoadingButton);
         enableShrink = array.getBoolean(R.styleable.LoadingButton_enableShrink, false);
-        mShrinkDuration = array.getInt(R.styleable.LoadingButton_shrinkDuration, 600);
-        int loadingDrawableSize = array.getDimensionPixelSize(R.styleable.LoadingButton_loadingDrawableSize, (int) getTextSize());
+        disableClickOnLoading = array.getBoolean(R.styleable.LoadingButton_disableClickOnLoading, true);
+        mShrinkDuration = array.getInt(R.styleable.LoadingButton_shrinkDuration, 500);
+        int loadingDrawableSize = array.getDimensionPixelSize(R.styleable.LoadingButton_loadingDrawableSize, (int) (enableShrink ? getTextSize() * 2 : getTextSize()));
         int loadingDrawableColor = array.getColor(R.styleable.LoadingButton_loadingDrawableColor, getTextColors().getDefaultColor());
         int loadingDrawablePosition = array.getInt(R.styleable.LoadingButton_loadingDrawablePosition, POSITION.START);
-        int endDrawableResId = array.getResourceId(R.styleable.LoadingButton_endDrawable, -1);
+        int endCompleteDrawableResId = array.getResourceId(R.styleable.LoadingButton_endCompleteDrawable, -1);
+        int endFailDrawableResId = array.getResourceId(R.styleable.LoadingButton_endFailDrawable, -1);
         int endDrawableAppearTime = array.getInt(R.styleable.LoadingButton_endDrawableAppearTime, EndDrawable.DEFAULT_APPEAR_DURATION);
         int endDrawableDuration = array.getInt(R.styleable.LoadingButton_endDrawableDuration, 1500);
         array.recycle();
@@ -105,25 +109,25 @@ public class LoadingButton extends DrawableTextView {
         mLoadingDrawable.setStrokeWidth(loadingDrawableSize * 0.14f);
 
         mLoadingSize = loadingDrawableSize;
-        setDrawable(mLoadingPosition, mLoadingDrawable, loadingDrawableSize, loadingDrawableSize);
+        mLoadingPosition = loadingDrawablePosition;
+        setDrawable(loadingDrawablePosition, mLoadingDrawable, loadingDrawableSize, loadingDrawableSize);
 
         //initLoadingDrawable
-        if (endDrawableResId != -1) {
-            mEndDrawable = new EndDrawable(endDrawableResId);
+        if (endCompleteDrawableResId != -1 || endFailDrawableResId != -1) {
+            mEndDrawable = new EndDrawable(endCompleteDrawableResId, endFailDrawableResId);
             mEndDrawable.mAppearAnimator.setDuration(endDrawableAppearTime);
             mEndDrawable.setDuration(endDrawableDuration);
         }
 
         //initShrinkAnimator
         setUpShrinkAnimator();
-        setEnableTextInCenter(true);
+        if (mLoadingPosition % 2 == 0 || enableShrink)
+            setEnableTextInCenter(true);
 
         if (getRootView().isInEditMode()) {
             mLoadingDrawable.setStartEndTrim(0, 0.8f);
-            if (mEndDrawable != null) {
-                mEndDrawable.setAnimValue(1);
-            }
         }
+
     }
 
     private void setUpShrinkAnimator() {
@@ -146,14 +150,13 @@ public class LoadingButton extends DrawableTextView {
             //onAnimationStart(Animator animation, boolean isReverse) 在7.0测试没有调用fuck
             @Override
             public void onAnimationStart(Animator animation) {
-                isAnimRunning = true;
-                if (mOnLoadingListener != null) {
-                    mOnLoadingListener.onShrinkStart(isShrinkAnimReverse);
-                }
-
                 if (!isShrinkAnimReverse) {
                     //开始收缩
                     curStatus = STATE.SHRINKING;
+                    if (mOnLoadingListener != null) {
+                        mOnLoadingListener.onShrinking();
+                    }
+
                     saveStatus();
                     setText("");
                     setCompoundDrawablePadding(0);
@@ -163,34 +166,53 @@ public class LoadingButton extends DrawableTextView {
                 } else {
                     //开始恢复
                     curStatus = STATE.RESTORING;
+                    if (mOnLoadingListener != null) {
+                        mOnLoadingListener.onRestoring();
+                        mOnLoadingListener.onLoadingStop();
+                    }
                     stopLoading();
                 }
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (mOnLoadingListener != null) {
-                    mOnLoadingListener.onShrinkEnd(isShrinkAnimReverse);
-                }
                 if (!isShrinkAnimReverse) {
                     //收缩结束
-                    startLoading();
                     curStatus = STATE.LOADING;
+                    if (mOnLoadingListener != null) {
+                        mOnLoadingListener.onLoadingStart();
+                    }
+                    startLoading();
+
                 } else {
                     //恢复结束
-                    stopLoading();
-                    restoreStatus();
-                    isAnimRunning = false;
                     curStatus = STATE.IDE;
+                    endCallbackListener();
+                    restoreStatus();
                 }
                 isShrinkAnimReverse = !isShrinkAnimReverse;
             }
 
         });
 
-
     }
 
+    private void endCallbackListener() {
+        if (mOnLoadingListener != null) {
+            if (isCancel)
+                mOnLoadingListener.onCanceled();
+            else if (isFail)
+                mOnLoadingListener.onFailed();
+            else
+                mOnLoadingListener.onCompleted();
+
+            if (disableClickOnLoading) {
+                super.setEnabled(mViewEnableSaved);
+            }
+            isCancel = false;
+            isFail = false;
+        }
+    }
 
 
     /**
@@ -218,14 +240,14 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
-    private void beginShrinkAnim(boolean isShrink, boolean lastFrame) {
+    private void beginShrinkAnim(boolean isReverse, boolean lastFrame) {
         if (enableShrink) {
             if (mShrinkAnimator.isRunning()) {
                 //如果上一个动画还在执行，就结束到最后一帧
                 mShrinkAnimator.end();
             }
-            isShrinkAnimReverse = !isShrink;
-            if (isShrink) {
+            isShrinkAnimReverse = isReverse;
+            if (!isReverse) {
                 mShrinkAnimator.start();
             } else {
                 mShrinkAnimator.reverse();
@@ -254,40 +276,17 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
-    public void start() {
-        cancel(false);
-        if (enableShrink) {
-            beginShrinkAnim(true, false);
-        } else {
-            startLoading();
-
-        }
-    }
-
-    public void complete() {
-        stopLoading();
-        if (mEndDrawable != null) {
-            mEndDrawable.show();
-        } else {
-            beginShrinkAnim(false, false);
-            if (mOnLoadingListener != null) {
-                mOnLoadingListener.onLoadingEnd();
-            }
-        }
-
-    }
-
-
-    public void cancel(boolean withAnim) {
+    private void cancelAllRunning(boolean withAnim) {
         switch (curStatus) {
             case STATE.SHRINKING:
-                beginShrinkAnim(false, !withAnim);
+                beginShrinkAnim(true, !withAnim);
                 break;
             case STATE.LOADING:
                 if (enableShrink) {
-                    beginShrinkAnim(false, !withAnim);
+                    beginShrinkAnim(true, !withAnim);
                 } else {
                     stopLoading();
+                    endCallbackListener();
                     curStatus = STATE.IDE;
                 }
                 break;
@@ -295,16 +294,71 @@ public class LoadingButton extends DrawableTextView {
                 if (mEndDrawable != null) {
                     mEndDrawable.cancel(withAnim);
                 } else {
-                    beginShrinkAnim(false, !withAnim);
+                    beginShrinkAnim(true, !withAnim);
                 }
                 break;
             case STATE.RESTORING:
                 if (!withAnim)
                     mShrinkAnimator.end();
-                else
+                else {
+                    endCallbackListener();
                     curStatus = STATE.IDE;
+                }
                 break;
         }
+
+    }
+
+
+    public void start() {
+        //disable click
+        if (disableClickOnLoading) {
+            super.setEnabled(false);
+        }
+
+        //cancel last loading
+        if (curStatus == STATE.SHRINKING || curStatus == STATE.LOADING)
+            isCancel = true;
+        cancelAllRunning(false);
+
+
+        if (enableShrink) {
+            beginShrinkAnim(false, false);
+        } else {
+            startLoading();
+        }
+    }
+
+    public void complete() {
+        if (mEndDrawable != null) {
+            mEndDrawable.show(true);
+        } else {
+            beginShrinkAnim(true, false);
+        }
+    }
+
+    public void fail() {
+        isFail = true;
+        if (mEndDrawable != null) {
+            mEndDrawable.show(false);
+        } else {
+            beginShrinkAnim(true, false);
+        }
+    }
+
+    public void cancel() {
+        cancel(true);
+    }
+
+    public void cancel(boolean withAnim) {
+        if (curStatus != STATE.IDE) {
+            isCancel = true;
+            cancelAllRunning(withAnim);
+        }
+    }
+
+    public void setDisableClickOnLoading(boolean disable) {
+        this.disableClickOnLoading = disable;
     }
 
     public void setEnableShrink(boolean enable) {
@@ -357,13 +411,39 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
-    public LoadingButton setEndDrawable(@DrawableRes int id) {
-        mEndDrawable = new EndDrawable(id);
+    public LoadingButton setCompleteEndDrawable(@DrawableRes int id) {
+        if (mEndDrawable == null)
+            mEndDrawable = new EndDrawable(id, -1);
+        else {
+            mEndDrawable.setCompleteDrawable(id);
+        }
         return this;
     }
 
-    public LoadingButton setEndDrawable(Drawable drawable) {
-        mEndDrawable = new EndDrawable(drawable);
+    public LoadingButton setCompleteEndDrawable(Drawable drawable) {
+        if (mEndDrawable == null)
+            mEndDrawable = new EndDrawable(drawable, null);
+        else {
+            mEndDrawable.setCompleteDrawable(drawable);
+        }
+        return this;
+    }
+
+    public LoadingButton setFailEndDrawable(@DrawableRes int id) {
+        if (mEndDrawable == null)
+            mEndDrawable = new EndDrawable(-1, id);
+        else {
+            mEndDrawable.setFailDrawable(id);
+        }
+        return this;
+    }
+
+    public LoadingButton setFailEndDrawable(Drawable drawable) {
+        if (mEndDrawable == null)
+            mEndDrawable = new EndDrawable(null, drawable);
+        else {
+            mEndDrawable.setFailDrawable(drawable);
+        }
         return this;
     }
 
@@ -397,13 +477,28 @@ public class LoadingButton extends DrawableTextView {
     @Override
     public void setCompoundDrawablePadding(int pad) {
         super.setCompoundDrawablePadding(pad);
-        mDrawablePaddingSaved = pad;
+        if (curStatus == STATE.IDE)
+            mDrawablePaddingSaved = pad;
+    }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        if (enableShrink && (curStatus != STATE.IDE)) {
+            text = "";
+        }
+        super.setText(text, type);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        mViewEnableSaved = enabled;
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        if (!isAnimRunning) {
+        if (curStatus == STATE.IDE) {
             mRootViewSizeSaved[0] = getWidth();
             mRootViewSizeSaved[1] = getHeight();
         }
@@ -413,6 +508,8 @@ public class LoadingButton extends DrawableTextView {
     protected void onFirstLayout(int left, int top, int right, int bottom) {
         super.onFirstLayout(left, top, right, bottom);
         saveStatus();
+        mViewEnableSaved = isEnabled();
+
     }
 
     @Override
@@ -422,10 +519,11 @@ public class LoadingButton extends DrawableTextView {
         super.onDraw(canvas);
     }
 
-    @SuppressWarnings("unused")
-    private class EndDrawable {
+    @SuppressWarnings({"unused", "WeakerAccess"})
+    public class EndDrawable {
         private static final int DEFAULT_APPEAR_DURATION = 300;
-        private Bitmap mBitmap;
+        private Bitmap mCompleteBitmap;
+        private Bitmap mFailBitmap;
         private Paint mPaint;
         private Rect mBounds = new Rect();
         private Path mCirclePath;   //圆形裁剪路径
@@ -435,17 +533,19 @@ public class LoadingButton extends DrawableTextView {
         private boolean isShowing;
         private Runnable mRunnable;
 
-        private EndDrawable(Drawable drawable){
-            mBitmap = getBitmap(drawable);
+        private EndDrawable(@Nullable Drawable completeDrawable, @Nullable Drawable failDrawable) {
+            setCompleteDrawable(completeDrawable);
+            setFailDrawable(failDrawable);
             init();
         }
 
-        private EndDrawable(@DrawableRes int id) {
-            mBitmap = getBitmap(id);
+        private EndDrawable(@DrawableRes int completeResId, @DrawableRes int failResId) {
+            setCompleteDrawable(completeResId);
+            setFailDrawable(failResId);
             init();
         }
 
-        private void init(){
+        private void init() {
             setLayerType(LAYER_TYPE_HARDWARE, null);
             mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
             mCirclePath = new Path();
@@ -453,13 +553,11 @@ public class LoadingButton extends DrawableTextView {
             mRunnable = new Runnable() {
                 @Override
                 public void run() {
-
                     setAnimValue(0);
-                    if (enableShrink && isAnimRunning) {
-                        beginShrinkAnim(false, false);
+                    if (enableShrink) {
+                        beginShrinkAnim(true, false);
                     } else {
-                        setEnabled(true);
-                        isAnimRunning = false;
+                        endCallbackListener();
                         curStatus = STATE.IDE;
                     }
                     isShowing = false;
@@ -469,13 +567,16 @@ public class LoadingButton extends DrawableTextView {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     super.onAnimationStart(animation);
+                    if (mOnLoadingListener != null) {
+                        mOnLoadingListener.onEndDrawableAppear(!isFail, mEndDrawable);
+                    }
                     curStatus = STATE.END_DRAWABLE_SHOWING;
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onLoadingEnd();
+                        mOnLoadingListener.onLoadingStop();
                     }
                     if (isShowing) {
                         postDelayed(mRunnable, duration);
@@ -484,8 +585,20 @@ public class LoadingButton extends DrawableTextView {
             });
         }
 
-        private void show() {
-            //如果仍在显示中，结束动画
+
+        private void show(boolean isSuccess) {
+            //end running Shrinking
+            if (mShrinkAnimator.isRunning()) {
+                mShrinkAnimator.end();
+            }
+
+            //StopLoading
+            if (mOnLoadingListener != null) {
+                mOnLoadingListener.onLoadingStop();
+            }
+            stopLoading();
+
+            //end showing endDrawable
             if (isShowing) {
                 cancel(false);
             }
@@ -500,7 +613,7 @@ public class LoadingButton extends DrawableTextView {
                 mAppearAnimator.end();
             }
             getHandler().removeCallbacks(mRunnable);
-            beginShrinkAnim(false, !withAnim);
+            beginShrinkAnim(true, !withAnim);
             setAnimValue(0);
         }
 
@@ -512,7 +625,6 @@ public class LoadingButton extends DrawableTextView {
             mAppearAnimator.reverse();
             isShowing = true;
         }
-
 
         private int[] calcOffset(Canvas canvas, Rect bounds, @POSITION int pos) {
             int[] offset = new int[]{0, 0};
@@ -556,20 +668,23 @@ public class LoadingButton extends DrawableTextView {
         }
 
         private void draw(Canvas canvas) {
-            if (getAnimValue() > 0 && mLoadingDrawable != null && mBitmap != null) {
-                final Rect bounds = mLoadingDrawable.getBounds();
-                mBounds.right = bounds.width();
-                mBounds.bottom = bounds.height();
+            if (getAnimValue() > 0 && mLoadingDrawable != null) {
+                final Bitmap targetBitMap = isFail ? mFailBitmap : mCompleteBitmap;
+                if (targetBitMap != null) {
+                    final Rect bounds = mLoadingDrawable.getBounds();
+                    mBounds.right = bounds.width();
+                    mBounds.bottom = bounds.height();
 
-                final int[] offsets = calcOffset(canvas, mBounds, mLoadingPosition);
-                canvas.save();
-                canvas.translate(offsets[0], offsets[1]);
-                mCirclePath.reset();
-                mCirclePath.addCircle(mBounds.centerX(), mBounds.centerY(),
-                        ((getLoadingDrawableSize() >> 1) * 1.3f) * animValue, Path.Direction.CW);
-                canvas.clipPath(mCirclePath);
-                canvas.drawBitmap(mBitmap, null, mBounds, mPaint);
-                canvas.restore();
+                    final int[] offsets = calcOffset(canvas, mBounds, mLoadingPosition);
+                    canvas.save();
+                    canvas.translate(offsets[0], offsets[1]);
+                    mCirclePath.reset();
+                    mCirclePath.addCircle(mBounds.centerX(), mBounds.centerY(),
+                            ((getLoadingDrawableSize() >> 1) * 1.3f) * animValue, Path.Direction.CW);
+                    canvas.clipPath(mCirclePath);
+                    canvas.drawBitmap(targetBitMap, null, mBounds, mPaint);
+                    canvas.restore();
+                }
             }
         }
 
@@ -582,20 +697,40 @@ public class LoadingButton extends DrawableTextView {
             return animValue;
         }
 
-
-        private ObjectAnimator getAppearAnimator() {
+        public ObjectAnimator getAppearAnimator() {
             return mAppearAnimator;
         }
 
-        private void setDuration(long duration) {
+        public void setDuration(long duration) {
             this.duration = duration;
         }
 
+        public void setCompleteDrawable(Drawable drawable) {
+            mCompleteBitmap = getBitmap(drawable);
+        }
+
+        public void setCompleteDrawable(@DrawableRes int id) {
+            if (id != -1) {
+                Drawable drawable = ContextCompat.getDrawable(getContext(), id);
+                mCompleteBitmap = getBitmap(drawable);
+            }
+        }
+
+        public void setFailDrawable(@DrawableRes int id) {
+            if (id != -1) {
+                Drawable failDrawable = ContextCompat.getDrawable(getContext(), id);
+                mFailBitmap = getBitmap(failDrawable);
+            }
+        }
+
+        public void setFailDrawable(Drawable drawable) {
+            mCompleteBitmap = getBitmap(drawable);
+        }
 
     }
 
     @Nullable
-    private Bitmap getBitmap(Drawable drawable){
+    private Bitmap getBitmap(Drawable drawable) {
         if (drawable != null) {
             Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
             Canvas canvas = new Canvas(bitmap);
@@ -606,25 +741,32 @@ public class LoadingButton extends DrawableTextView {
         return null;
     }
 
-    @Nullable
-    private Bitmap getBitmap(int resId) {
-        Drawable drawable = ContextCompat.getDrawable(getContext(), resId);
-        return getBitmap(drawable);
-    }
-
-
     public interface OnLoadingListener {
         void onLoadingStart();
 
-        void onLoadingEnd();
+        void onLoadingStop();
 
-        void onShrinkStart(boolean isReverse);
+        void onShrinking();
 
-        void onShrinkEnd(boolean isReverse);
+        void onRestoring();
+
+        void onEndDrawableAppear(boolean isSuccess, EndDrawable endDrawable);
+
+        void onCompleted();
+
+        void onFailed();
+
+        void onCanceled();
     }
 
 
     public static class OnLoadingListenerAdapter implements OnLoadingListener {
+
+        @Override
+        public void onShrinking() {
+
+        }
+
 
         @Override
         public void onLoadingStart() {
@@ -632,20 +774,37 @@ public class LoadingButton extends DrawableTextView {
         }
 
         @Override
-        public void onLoadingEnd() {
+        public void onLoadingStop() {
 
 
         }
 
         @Override
-        public void onShrinkStart(boolean isReverse) {
+        public void onEndDrawableAppear(boolean isSuccess, EndDrawable endDrawable) {
 
         }
 
         @Override
-        public void onShrinkEnd(boolean isReverse) {
+        public void onRestoring() {
 
         }
+
+        @Override
+        public void onCompleted() {
+
+        }
+
+        @Override
+        public void onFailed() {
+
+        }
+
+        @Override
+        public void onCanceled() {
+
+        }
+
+
     }
 
     public void setOnLoadingListener(OnLoadingListener onLoadingListener) {

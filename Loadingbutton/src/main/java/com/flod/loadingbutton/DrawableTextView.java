@@ -113,12 +113,11 @@ public class DrawableTextView extends AppCompatTextView {
             onFirstLayout(left, top, right, bottom);
             firstLayout = true;
         }
-
     }
 
     protected void onFirstLayout(int left, int top, int right, int bottom) {
-        mTextWidth = measureTextWidth();
-        mTextHeight = measureTextHeight();
+        measureTextWidth();
+        measureTextHeight();
     }
 
     /**
@@ -214,19 +213,22 @@ public class DrawableTextView extends AppCompatTextView {
      * 测量文字的宽度，通过Paint测量所有文字的长度，
      * 但是这个数据不一定准确，文本还有可能换行，还需要通过{@link #getLineBounds}来获取文本的最大宽度
      */
-    protected float measureTextWidth() {
+    protected void measureTextWidth() {
         final Rect textBounds = new Rect();
         getLineBounds(0, textBounds);
         final float width = getPaint().measureText(getText().toString());
         final float maxWidth = textBounds.width();
-        return width <= maxWidth ? width : maxWidth;
+        mTextWidth = width <= maxWidth || maxWidth == 0 ? width : maxWidth;
     }
 
     /**
      * 获取文本的高度，通过{@link #getLineHeight}乘文本的行数
      */
-    protected float measureTextHeight() {
-        return getLineHeight() * getLineCount();
+    protected void measureTextHeight() {
+        if (getText().length() > 0)
+            mTextHeight = getLineHeight() * getLineCount();
+        else
+            mTextHeight = 0;
     }
 
     protected float getTextWidth() {
@@ -240,8 +242,15 @@ public class DrawableTextView extends AppCompatTextView {
     @Override
     public void setText(CharSequence text, BufferType type) {
         super.setText(text, type);
-        mTextWidth = measureTextWidth();
-        mTextHeight = measureTextHeight();
+        measureTextWidth();
+        measureTextHeight();
+
+        /*Log.d("mTextHeight", "Text: " + getText());
+        Log.d("mTextHeight", "getWidth: " + getWidth());
+        Log.d("mTextHeight", "getHeight: " + getHeight());
+        Log.d("mTextHeight", "mTextHeight: " + mTextHeight);
+        Log.d("mTextHeight", "getLineCount: " + getLineCount());
+        Log.d("mTextHeight", "getLineHeight: " + getLineHeight());*/
     }
 
     /**

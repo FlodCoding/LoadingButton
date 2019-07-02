@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvShrinkDuration = findViewById(R.id.tvShrinkDuration);
         tvLoadingDrawableColor = findViewById(R.id.tvLoadingDrawableColor);
         tvLoadingPosition = findViewById(R.id.tvLoadingPosition);
-        imEndDrawableIcon = findViewById(R.id.imEndDrawableIcon);
+        imEndDrawableIcon = findViewById(R.id.imEndCompleteDrawableIcon);
         tvEndDrawableDuration = findViewById(R.id.tvEndDrawableDuration);
         tvLoadingEndDrawableSize = findViewById(R.id.tvLoadingEndDrawableSize);
         tvLoadingStrokeWidth = findViewById(R.id.tvLoadingStrokeWidth);
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvShrinkDuration.setOnClickListener(this);
         tvLoadingDrawableColor.setOnClickListener(this);
         tvLoadingPosition.setOnClickListener(this);
-        findViewById(R.id.layEndDrawableIcon).setOnClickListener(this);
+        findViewById(R.id.layEndCompleteDrawableIcon).setOnClickListener(this);
         tvEndDrawableDuration.setOnClickListener(this);
         tvLoadingEndDrawableSize.setOnClickListener(this);
         tvLoadingStrokeWidth.setOnClickListener(this);
@@ -148,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onCompleted() {
                 Toast.makeText(getApplicationContext(), "onCompleted", Toast.LENGTH_SHORT).show();
-                loadingBtn.setText("Submit");
             }
 
             @Override
@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
         });
+
 
     }
 
@@ -226,6 +227,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showSelectDialog("LoadingPosition", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        loadingBtn.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         loadingBtn.setLoadingPosition(itemIndexSelected);
                         tvLoadingPosition.setText(items.get(itemIndexSelected));
                         itemIndexSelected = 0;
@@ -235,7 +237,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 break;
             }
-            case R.id.layEndDrawableIcon: {
+            case R.id.layEndCompleteDrawableIcon: {
                 if (!requestPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     Matisse.from(MainActivity.this)
@@ -290,6 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case R.id.tvLoadingText: {
+                loadingBtn.setCompoundDrawablesRelative(null, null, null, null);
                 break;
             }
             case R.id.tvLoadingCompleteText: {

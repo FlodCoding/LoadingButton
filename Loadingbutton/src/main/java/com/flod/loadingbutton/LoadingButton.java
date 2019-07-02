@@ -13,6 +13,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.View;
 
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
@@ -32,7 +33,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
  * 先执行 beginShrinkAnim(true) 后执行 beginShrinkAnim(false);
  * <p>
  * 8、多次start和end 会出错
- * 9、设置完Drawable大小后，start后再次设置rootView大小失控
+ * 9、设置完Drawable大小后，start后再次设置rootView大小失控,是因为原来是wrap_content
  * 10、start和compete同时按Loading没有关
  */
 @SuppressWarnings({"UnusedReturnValue,SameParameterValue", "unused"})
@@ -65,7 +66,7 @@ public class LoadingButton extends DrawableTextView {
     private int mLoadingPosition;
 
 
-    private boolean isShrinkAnimReverse;
+    private boolean nextShrinkReverse;
     private boolean isCancel;
     private boolean isFail;
 
@@ -108,7 +109,7 @@ public class LoadingButton extends DrawableTextView {
 
         mLoadingSize = loadingDrawableSize;
         mLoadingPosition = loadingDrawablePosition;
-        setDrawable(loadingDrawablePosition, mLoadingDrawable, loadingDrawableSize, loadingDrawableSize);
+        setDrawable(mLoadingPosition, mLoadingDrawable, loadingDrawableSize, loadingDrawableSize);
 
         //initLoadingDrawable
         if (endCompleteDrawableResId != -1 || endFailDrawableResId != -1) {
@@ -119,11 +120,10 @@ public class LoadingButton extends DrawableTextView {
 
         //initShrinkAnimator
         setUpShrinkAnimator();
-        //TODO
-        setEnableTextInCenter(true);
-      /*  if (mLoadingPosition % 2 == 0 || enableShrink)
-            setEnableTextInCenter(true);
-*/
+
+        //Start|End -> true  Top|Bottom ->false
+        setEnableTextInCenter(mLoadingPosition % 2 == 0);
+
         if (getRootView().isInEditMode()) {
             mLoadingDrawable.setStartEndTrim(0, 0.8f);
         }
@@ -150,7 +150,7 @@ public class LoadingButton extends DrawableTextView {
             //onAnimationStart(Animator animation, boolean isReverse) 在7.0测试没有调用fuck
             @Override
             public void onAnimationStart(Animator animation) {
-                if (!isShrinkAnimReverse) {
+                if (!nextShrinkReverse) {
                     //开始收缩
                     curStatus = STATE.SHRINKING;
                     if (mOnLoadingListener != null) {
@@ -176,21 +176,19 @@ public class LoadingButton extends DrawableTextView {
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                if (!isShrinkAnimReverse) {
+                if (!nextShrinkReverse) {
                     //收缩结束
                     curStatus = STATE.LOADING;
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onLoadingStart();
-                    }
                     startLoading();
+                    nextShrinkReverse = true;
 
                 } else {
                     //恢复结束
                     curStatus = STATE.IDE;
-                    endCallbackListener();
                     restoreStatus();
+                    endCallbackListener();
+                    nextShrinkReverse = false;
                 }
-                isShrinkAnimReverse = !isShrinkAnimReverse;
             }
 
         });
@@ -233,10 +231,19 @@ public class LoadingButton extends DrawableTextView {
         setCompoundDrawablePadding(mDrawablePaddingSaved);
         setCompoundDrawablesRelative(mDrawablesSaved[POSITION.START], mDrawablesSaved[POSITION.TOP], mDrawablesSaved[POSITION.END], mDrawablesSaved[POSITION.BOTTOM]);
         setEnableTextInCenter(mEnableTextInCenterSaved);
-
         getLayoutParams().width = mRootViewSizeSaved[0];
         getLayoutParams().height = mRootViewSizeSaved[1];
         requestLayout();
+
+        addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                measureTextHeight();
+                measureTextWidth();
+                removeOnLayoutChangeListener(this);
+            }
+        });
+
     }
 
 
@@ -246,7 +253,7 @@ public class LoadingButton extends DrawableTextView {
                 //如果上一个动画还在执行，就结束到最后一帧
                 mShrinkAnimator.end();
             }
-            isShrinkAnimReverse = isReverse;
+            nextShrinkReverse = isReverse;
             if (!isReverse) {
                 mShrinkAnimator.start();
             } else {
@@ -287,6 +294,7 @@ public class LoadingButton extends DrawableTextView {
                 } else {
                     stopLoading();
                     endCallbackListener();
+                    restoreStatus();
                     curStatus = STATE.IDE;
                 }
                 break;
@@ -301,8 +309,7 @@ public class LoadingButton extends DrawableTextView {
                 if (!withAnim)
                     mShrinkAnimator.end();
                 else {
-                    endCallbackListener();
-                    curStatus = STATE.IDE;
+                    beginShrinkAnim(true, true);
                 }
                 break;
         }
@@ -325,17 +332,16 @@ public class LoadingButton extends DrawableTextView {
         if (enableShrink) {
             beginShrinkAnim(false, false);
         } else {
+            saveStatus();
             startLoading();
         }
     }
 
     public void complete() {
         if (mEndDrawable != null) {
-            if (curStatus == STATE.LOADING)
-                mEndDrawable.show(true, true);
-            else
-                mEndDrawable.show(true, false);
+            mEndDrawable.show(true);
         } else {
+            //TODO 测试
             if (curStatus == STATE.LOADING)
                 beginShrinkAnim(true, false);
             else
@@ -346,7 +352,7 @@ public class LoadingButton extends DrawableTextView {
     public void fail() {
         isFail = true;
         if (mEndDrawable != null) {
-            mEndDrawable.show(false, true);
+            mEndDrawable.show(false);
         } else {
             beginShrinkAnim(true, false);
         }
@@ -398,12 +404,14 @@ public class LoadingButton extends DrawableTextView {
         return this;
     }
 
+
     public void setLoadingPosition(@POSITION int position) {
-        if (!enableShrink) {
-            setDrawable(mLoadingPosition, null, 0, 0);
-            mLoadingPosition = position;
-            setDrawable(position, getLoadingDrawable(), getLoadingDrawableSize(), getLoadingDrawableSize());
-        }
+        boolean enableTextInCenter = position % 2 == 0;
+        setEnableTextInCenter(enableTextInCenter);
+        mEnableTextInCenterSaved = enableTextInCenter;
+        setDrawable(mLoadingPosition, null, 0, 0);
+        mLoadingPosition = position;
+        setDrawable(position, getLoadingDrawable(), getLoadingDrawableSize(), getLoadingDrawableSize());
     }
 
     public LoadingButton setLoadingEndDrawableSize(@Px int size) {
@@ -462,7 +470,7 @@ public class LoadingButton extends DrawableTextView {
     public long getEndDrawableDuration() {
         if (mEndDrawable != null)
             return mEndDrawable.duration;
-        return 0;
+        return EndDrawable.DEFAULT_APPEAR_DURATION;
     }
 
     public LoadingButton setEndDrawableAppearTime(long milliseconds) {
@@ -487,8 +495,10 @@ public class LoadingButton extends DrawableTextView {
             mDrawablePaddingSaved = pad;
     }
 
+
     @Override
     public void setText(CharSequence text, BufferType type) {
+        //TODO 测试
         if (enableShrink && (curStatus != STATE.IDE)) {
             text = "";
         }
@@ -538,7 +548,6 @@ public class LoadingButton extends DrawableTextView {
         private float animValue;
         int[] offsetTemp = new int[]{0, 0};
         private boolean isShowing;
-        private boolean shrink;
         private Runnable mRunnable;
 
         private EndDrawable(@Nullable Drawable completeDrawable, @Nullable Drawable failDrawable) {
@@ -562,11 +571,12 @@ public class LoadingButton extends DrawableTextView {
                 @Override
                 public void run() {
                     setAnimValue(0);
-                    if (shrink) {
-                        beginShrinkAnim(true, false);
-                    } else {
-                        endCallbackListener();
+                    if (enableShrink)
+                        beginShrinkAnim(true, !nextShrinkReverse);
+                    else {
                         curStatus = STATE.IDE;
+                        restoreStatus();
+                        endCallbackListener();
                     }
                     isShowing = false;
                 }
@@ -594,7 +604,12 @@ public class LoadingButton extends DrawableTextView {
         }
 
 
-        private void show(boolean isSuccess, boolean shrink) {
+        /**
+         * 显示EndDrawable
+         *
+         * @param isSuccess true:CompleteDrawable fail:FailDrawable
+         */
+        private void show(boolean isSuccess) {
             //end running Shrinking
             if (mShrinkAnimator.isRunning()) {
                 mShrinkAnimator.end();
@@ -612,17 +627,21 @@ public class LoadingButton extends DrawableTextView {
             }
             mAppearAnimator.start();
             isShowing = true;
-            this.shrink = shrink;
         }
 
         private void cancel(boolean withAnim) {
             isShowing = false;
             if (mAppearAnimator.isRunning()) {
-                //出现中
                 mAppearAnimator.end();
             }
             getHandler().removeCallbacks(mRunnable);
-            beginShrinkAnim(true, !withAnim);
+            if (enableShrink)
+                beginShrinkAnim(true, !withAnim);
+            else {
+                endCallbackListener();
+                restoreStatus();
+                curStatus = STATE.IDE;
+            }
             setAnimValue(0);
         }
 
@@ -639,44 +658,35 @@ public class LoadingButton extends DrawableTextView {
             final int[] offset = offsetTemp;
             offset[0] = canvas.getWidth() / 2;
             offset[1] = canvas.getHeight() / 2;
+
             switch (pos) {
                 case POSITION.START: {
                     offset[0] -= (int) getTextWidth() / 2 + bounds.width() + getCompoundDrawablePadding();
-                    if (enableShrink && isShrinkAnimReverse) {
+                    if (enableShrink && nextShrinkReverse) {
                         offset[0] += bounds.width() / 2;
+                    } else if (!isEnableTextInCenter()) {
+                        offset[0] += (bounds.width() + getCompoundDrawablePadding()) / 2;
                     }
+
                     offset[1] -= bounds.height() / 2;
                     break;
                 }
                 case POSITION.TOP: {
-                    //TODO Test
-
                     offset[0] -= bounds.width() / 2;
-
-                    if (enableShrink) {
-                        offset[1] -= bounds.height() / 2;
-                    } else {
-                        offset[1] -= (getTextHeight() + bounds.height() + getCompoundDrawablePadding()) / 2;
-                        if (isEnableTextInCenter()) {
-                            offset[1] -= getCompoundDrawablePadding() / 2;
-                        }
+                    offset[1] -= (int) getTextHeight() / 2 + bounds.height() + getCompoundDrawablePadding();
+                    if (enableShrink && nextShrinkReverse) {
+                        offset[1] += bounds.height() / 2;
+                    } else if (!isEnableTextInCenter()) {
+                        offset[1] += (bounds.height() + getCompoundDrawablePadding()) / 2;
                     }
-
-                   /* offset[1] -= (int) getTextHeight() / 2 + bounds.height() + getCompoundDrawablePadding();
-                    if (enableShrink) {
-                        if (isShrinkAnimReverse)
-                            offset[1] += bounds.height() / 2;
-                    }
-
-                    if (!enableShrink && !isEnableTextInCenter()) {
-                        offset[1] += (bounds.height() + getCompoundDrawablePadding()) >> 1;
-                    }*/
                     break;
                 }
                 case POSITION.END: {
                     offset[0] += (int) getTextWidth() / 2 + getCompoundDrawablePadding();
-                    if (enableShrink && isShrinkAnimReverse) {
+                    if (enableShrink && nextShrinkReverse) {
                         offset[0] -= bounds.width() / 2;
+                    } else if (!isEnableTextInCenter()) {
+                        offset[0] -= (bounds.width() + getCompoundDrawablePadding()) / 2;
                     }
                     offset[1] -= bounds.height() / 2;
                     break;
@@ -684,8 +694,10 @@ public class LoadingButton extends DrawableTextView {
                 case POSITION.BOTTOM: {
                     offset[0] -= bounds.width() / 2;
                     offset[1] += (int) getTextHeight() / 2 + getCompoundDrawablePadding();
-                    if (enableShrink && isShrinkAnimReverse) {
-                        offset[1] += bounds.height() / 2;
+                    if (enableShrink && nextShrinkReverse) {
+                        offset[1] -= bounds.height() / 2;
+                    } else if (!isEnableTextInCenter()) {
+                        offset[1] -= (bounds.height() + getCompoundDrawablePadding()) / 2;
                     }
                     break;
                 }

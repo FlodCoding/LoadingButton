@@ -31,7 +31,6 @@
             app:endCompleteDrawable="@drawable/ic_successful"
             app:endFailDrawable="@drawable/ic_fail"
             app:loadingDrawablePosition="Start"
-            app:enableTextInCenter="false"
             tools:ignore="HardcodedText" />
 
         <RelativeLayout
@@ -147,7 +146,7 @@
 
 
         <RelativeLayout
-            android:id="@+id/layEndDrawableIcon"
+            android:id="@+id/layEndCompleteDrawableIcon"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp">
@@ -156,15 +155,38 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="EndDrawableIcon" />
+                android:text="EndCompleteDrawableIcon" />
 
             <ImageView
-                android:id="@+id/imEndDrawableIcon"
+                android:id="@+id/imEndCompleteDrawableIcon"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
+                android:background="@android:color/holo_red_light"
                 android:src="@drawable/ic_successful" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/layEndFailDrawableIcon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="EndFailDrawableIcon" />
+
+            <ImageView
+                android:id="@+id/imEndFailDrawableIcon"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@android:color/holo_red_light"
+                android:src="@drawable/ic_fail" />
         </RelativeLayout>
 
         <RelativeLayout

@@ -144,6 +144,50 @@
                 android:text="START" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="LoadingStrokeWidth" />
+
+            <TextView
+                android:id="@+id/tvLoadingStrokeWidth"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="TextSize * 0.14" />
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Loading&#038;EndDrawableSize" />
+
+            <TextView
+                android:id="@+id/tvLoadingEndDrawableSize"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="TextSize * 2" />
+        </RelativeLayout>
 
         <RelativeLayout
             android:id="@+id/layEndCompleteDrawableIcon"
@@ -211,50 +255,6 @@
                 android:text="1500ms" />
         </RelativeLayout>
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="Loading&#038;EndDrawableSize" />
-
-            <TextView
-                android:id="@+id/tvLoadingEndDrawableSize"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="TextSize * 2" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="LoadingStrokeWidth" />
-
-            <TextView
-                android:id="@+id/tvLoadingStrokeWidth"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="TextSize * 0.12" />
-        </RelativeLayout>
-
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -291,17 +291,37 @@
                 android:text="LoadingCompleteText" />
 
             <TextView
-                android:id="@+id/tvLoadingCompleteText"
+                android:id="@+id/tvCompleteText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
                 android:background="@drawable/shape_btn"
                 android:padding="6dp"
-                android:text="Complete" />
+                android:text="Success" />
         </RelativeLayout>
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="LoadingCompleteText" />
+
+            <TextView
+                android:id="@+id/tvFailText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/shape_btn"
+                android:padding="6dp"
+                android:text="Fail" />
+        </RelativeLayout>
     </LinearLayout>
 </ScrollView>
 

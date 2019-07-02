@@ -7,15 +7,21 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Switch;
@@ -29,6 +35,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.flod.loadingbutton.DrawableTextView;
 import com.flod.loadingbutton.LoadingButton;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
@@ -41,6 +52,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final int RQ_MULTIPLE_PERMISSIONS = 200;
+    private static final int RQ_GET_PHOTO_COMPLETE = 10;
+    private static final int RQ_GET_PHOTO_FAIL = 11;
     private LoadingButton loadingBtn;
     private Button btCancel;
     private Button btFail;
@@ -50,16 +63,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tvShrinkDuration;
     private TextView tvLoadingDrawableColor;
     private TextView tvLoadingPosition;
-    private ImageView imEndDrawableIcon;
+    private ImageView imEndCompleteDrawableIcon;
+    private ImageView imEndFailDrawableIcon;
     private TextView tvEndDrawableDuration;
     private TextView tvLoadingEndDrawableSize;
     private TextView tvLoadingStrokeWidth;
     private TextView tvLoadingText;
-    private TextView tvLoadingCompleteText;
+    private TextView tvCompleteText;
+    private TextView tvFailText;
 
 
     private int itemIndexSelected;
     private int seekBarProgress;
+    private String editTextString;
+
+
+    private String loadingText = "Loading";
+    private String completeText = "Success";
+    private String failText = "Fail";
 
 
     @Override
@@ -69,6 +90,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initView();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add("Reset")
+                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        resetView();
+                        Toast.makeText(getApplicationContext(), "Reset", Toast.LENGTH_SHORT).show();
+                        return false;
+                    }
+                })
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        return super.onCreateOptionsMenu(menu);
+
+    }
 
     private void initView() {
         loadingBtn = findViewById(R.id.loadingBtn);
@@ -78,12 +114,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvShrinkDuration = findViewById(R.id.tvShrinkDuration);
         tvLoadingDrawableColor = findViewById(R.id.tvLoadingDrawableColor);
         tvLoadingPosition = findViewById(R.id.tvLoadingPosition);
-        imEndDrawableIcon = findViewById(R.id.imEndCompleteDrawableIcon);
+        imEndCompleteDrawableIcon = findViewById(R.id.imEndCompleteDrawableIcon);
+        imEndFailDrawableIcon = findViewById(R.id.imEndFailDrawableIcon);
         tvEndDrawableDuration = findViewById(R.id.tvEndDrawableDuration);
         tvLoadingEndDrawableSize = findViewById(R.id.tvLoadingEndDrawableSize);
         tvLoadingStrokeWidth = findViewById(R.id.tvLoadingStrokeWidth);
         tvLoadingText = findViewById(R.id.tvLoadingText);
-        tvLoadingCompleteText = findViewById(R.id.tvLoadingCompleteText);
+        tvCompleteText = findViewById(R.id.tvCompleteText);
+        tvFailText = findViewById(R.id.tvFailText);
         btCancel = findViewById(R.id.btCancel);
         btFail = findViewById(R.id.btFail);
         btComplete = findViewById(R.id.btComplete);
@@ -93,15 +131,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tvLoadingDrawableColor.setOnClickListener(this);
         tvLoadingPosition.setOnClickListener(this);
         findViewById(R.id.layEndCompleteDrawableIcon).setOnClickListener(this);
+        findViewById(R.id.layEndFailDrawableIcon).setOnClickListener(this);
         tvEndDrawableDuration.setOnClickListener(this);
         tvLoadingEndDrawableSize.setOnClickListener(this);
         tvLoadingStrokeWidth.setOnClickListener(this);
         tvLoadingText.setOnClickListener(this);
-        tvLoadingCompleteText.setOnClickListener(this);
+        tvCompleteText.setOnClickListener(this);
+        tvFailText.setOnClickListener(this);
         btCancel.setOnClickListener(this);
         btFail.setOnClickListener(this);
         btComplete.setOnClickListener(this);
 
+        initLoadingButton();
 
         swEnableShrink.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -133,7 +174,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
 
+        loadingBtn.setFailDrawable(null);
+    }
+
+    private void resetView() {
+        loadingText = "Loading";
+        completeText = "Success";
+        failText = "Fail";
+        swEnableShrink.setChecked(true);
+        swDisableClickOnLoading.setChecked(true);
+        tvShrinkDuration.setText("500ms");
+        tvLoadingDrawableColor.setText("TextColor");
+        tvLoadingPosition.setText("START");
+        imEndCompleteDrawableIcon.setImageResource(R.drawable.ic_successful);
+        imEndFailDrawableIcon.setImageResource(R.drawable.ic_fail);
+        tvEndDrawableDuration.setText("1500ms");
+        tvLoadingEndDrawableSize.setText("TextSize * 2");
+        tvLoadingStrokeWidth.setText("TextSize * 0.12");
+        tvLoadingText.setText(loadingText);
+        tvCompleteText.setText(completeText);
+        tvFailText.setText(failText);
+
+
+        initLoadingButton();
+    }
+
+    private void initLoadingButton() {
         loadingBtn.setOnClickListener(this);
+        loadingBtn.cancel();
+
+        loadingBtn.setEnableShrink(true)
+                .setShrinkDuration(450)
+                .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
+                .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))
+                .setLoadingPosition(DrawableTextView.POSITION.START)
+                .setCompleteDrawable(R.drawable.ic_successful)
+                .setFailDrawable(R.drawable.ic_fail)
+                .setEndDrawableKeepDuration(900)
+                .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2));
+
         loadingBtn.setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
             @Override
             public void onCanceled() {
@@ -153,20 +232,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             @Override
             public void onLoadingStart() {
-                loadingBtn.setText("Loading");
+                loadingBtn.setText(loadingText);
             }
 
             @Override
             public void onEndDrawableAppear(boolean isSuccess, LoadingButton.EndDrawable endDrawable) {
                 if (isSuccess) {
-                    loadingBtn.setText("Success");
+                    loadingBtn.setText(completeText);
                 } else {
-                    loadingBtn.setText("Fail");
+                    loadingBtn.setText(failText);
                 }
             }
         });
-
-
     }
 
 
@@ -245,7 +322,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                             .thumbnailScale(0.5f)
                             .imageEngine(new Glide4Engine())
-                            .forResult(10);
+                            .forResult(RQ_GET_PHOTO_COMPLETE);
+                }
+                break;
+            }
+            case R.id.layEndFailDrawableIcon: {
+                if (!requestPermissions(this, Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                    Matisse.from(MainActivity.this)
+                            .choose(MimeType.ofImage())
+                            .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                            .thumbnailScale(0.5f)
+                            .imageEngine(new Glide4Engine())
+                            .forResult(RQ_GET_PHOTO_FAIL);
                 }
                 break;
             }
@@ -256,7 +345,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     tvEndDrawableDuration.setText(seekBarProgress + "ms");
-                                    loadingBtn.setEndDrawableDuration(seekBarProgress);
+                                    loadingBtn.setEndDrawableKeepDuration(seekBarProgress);
                                     seekBarProgress = 0;
                                 }
                             });
@@ -292,10 +381,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case R.id.tvLoadingText: {
-                loadingBtn.setCompoundDrawablesRelative(null, null, null, null);
+                showEditDialog("SetLoadingText", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        loadingText = editTextString;
+                        editTextString = "";
+                    }
+                });
                 break;
             }
-            case R.id.tvLoadingCompleteText: {
+            case R.id.tvCompleteText: {
+                showEditDialog("SetCompleteText", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        completeText = editTextString;
+                        editTextString = "";
+                    }
+                });
+                break;
+            }
+            case R.id.tvFailText: {
+                showEditDialog("SetFailText", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        failText = editTextString;
+                        editTextString = "";
+                    }
+                });
                 break;
             }
         }
@@ -365,20 +477,68 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 10 && resultCode == RESULT_OK && data != null) {
-            List<Uri> mSelected = Matisse.obtainResult(data);
-            Log.d("Matisse", "mSelected: " + mSelected);
-            Glide.with(this)
-                    .asDrawable()
-                    .load(mSelected.get(0))
-                    .into(imEndDrawableIcon);
-            loadingBtn.setCompleteEndDrawable(imEndDrawableIcon.getDrawable());
-        }
+    private void showEditDialog(String title, DialogInterface.OnClickListener onConfirmClickListener) {
+        View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_text, null);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final EditText editText = view.findViewById(R.id.et);
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                editTextString = s.toString();
+            }
+        });
+
+        builder.setTitle(title)
+                .setView(view)
+                .setNegativeButton("Confirm", onConfirmClickListener);
+        builder.create().show();
     }
 
+
+    @Override
+    protected void onActivityResult(final int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == RQ_GET_PHOTO_COMPLETE || requestCode == RQ_GET_PHOTO_FAIL) {
+                final ImageView targetImageView = requestCode == RQ_GET_PHOTO_COMPLETE ? imEndCompleteDrawableIcon : imEndFailDrawableIcon;
+                List<Uri> mSelected = Matisse.obtainResult(data);
+                Log.d("Matisse", "mSelected: " + mSelected);
+                Glide.with(this)
+                        .asDrawable()
+                        .listener(new RequestListener<Drawable>() {
+                            @Override
+                            public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
+                                return false;
+                            }
+
+                            @Override
+                            public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
+                                if (requestCode == RQ_GET_PHOTO_COMPLETE)
+                                    loadingBtn.setCompleteDrawable(resource);
+                                else
+                                    loadingBtn.setFailDrawable(resource);
+                                return false;
+                            }
+                        })
+                        .load(mSelected.get(0))
+                        .into(targetImageView);
+
+            }
+        }
+
+    }
+
+    @SuppressWarnings({"VariableArgumentMethod", "BooleanMethodIsAlwaysInverted"})
     public static boolean requestPermissions(Activity context, String... permissions) {
         boolean flag = false;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {

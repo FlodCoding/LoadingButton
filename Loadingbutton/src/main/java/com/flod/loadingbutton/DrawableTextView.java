@@ -33,7 +33,7 @@ import java.util.Arrays;
 public class DrawableTextView extends AppCompatTextView {
 
     @IntDef({POSITION.START, POSITION.TOP, POSITION.END, POSITION.BOTTOM})
-    @interface POSITION {
+    public @interface POSITION {
         int START = 0;
         int TOP = 1;
         int END = 2;
@@ -244,13 +244,6 @@ public class DrawableTextView extends AppCompatTextView {
         super.setText(text, type);
         measureTextWidth();
         measureTextHeight();
-
-        /*Log.d("mTextHeight", "Text: " + getText());
-        Log.d("mTextHeight", "getWidth: " + getWidth());
-        Log.d("mTextHeight", "getHeight: " + getHeight());
-        Log.d("mTextHeight", "mTextHeight: " + mTextHeight);
-        Log.d("mTextHeight", "getLineCount: " + getLineCount());
-        Log.d("mTextHeight", "getLineHeight: " + getLineHeight());*/
     }
 
     /**

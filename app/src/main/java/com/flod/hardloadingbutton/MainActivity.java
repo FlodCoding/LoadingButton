@@ -172,9 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 loadingBtn.setDisableClickOnLoading(isChecked);
             }
         });
-
-
-        loadingBtn.setFailDrawable(null);
+        
     }
 
     private void resetView() {
@@ -202,8 +200,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initLoadingButton() {
         loadingBtn.setOnClickListener(this);
         loadingBtn.cancel();
-
+        loadingBtn.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
         loadingBtn.setEnableShrink(true)
+                .setDisableClickOnLoading(true)
                 .setShrinkDuration(450)
                 .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
                 .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))

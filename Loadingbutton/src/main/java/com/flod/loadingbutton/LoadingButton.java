@@ -57,7 +57,6 @@ public class LoadingButton extends DrawableTextView {
     private int mDrawablePaddingSaved;
     private CharSequence mTextSaved;
     private boolean mEnableTextInCenterSaved;
-    private boolean mViewEnableSaved;
     private int[] mRootViewSizeSaved = new int[]{0, 0};
 
     private boolean disableClickOnLoading;   //Loading中禁用点击
@@ -225,7 +224,6 @@ public class LoadingButton extends DrawableTextView {
     private void saveStatus() {
         mTextSaved = getText();
         mDrawablesSaved = copyDrawables(true);
-        mViewEnableSaved = isEnabled();
         mDrawablePaddingSaved = getCompoundDrawablePadding();
         mEnableTextInCenterSaved = isEnableTextInCenter();
     }
@@ -242,7 +240,7 @@ public class LoadingButton extends DrawableTextView {
         getLayoutParams().height = mRootViewSizeSaved[1];
         requestLayout();
         if (disableClickOnLoading) {
-            super.setEnabled(mViewEnableSaved);
+            super.setEnabled(true);
         }
 
         addOnLayoutChangeListener(new OnLayoutChangeListener() {
@@ -608,12 +606,6 @@ public class LoadingButton extends DrawableTextView {
         super.setText(text, type);
     }
 
-    @Override
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-        mViewEnableSaved = enabled;
-
-    }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {

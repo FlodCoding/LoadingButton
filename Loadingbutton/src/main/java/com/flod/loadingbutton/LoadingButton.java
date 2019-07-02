@@ -72,7 +72,7 @@ public class LoadingButton extends DrawableTextView {
 
     private boolean nextShrinkReverse;      //下一步是否是恢复动画
     private boolean isCancel;               //是取消当前动画
-    private boolean isFail;            
+    private boolean isFail;
 
 
     public LoadingButton(Context context) {

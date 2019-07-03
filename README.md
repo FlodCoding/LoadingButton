@@ -22,8 +22,12 @@
  App目录下的build.gradle 
  
  	dependencies {
-     implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha1'
-  }
+		//Androidx
+     		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha1'
+		
+		//Support-appcompat
+		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha1-support'
+     	}
   
  
 ## Demo

@@ -1,7 +1,4 @@
 <resources>
     <string name="app_name">LoadingButton</string>
 
-
-    <string name="confirm">Confirm</string>
-    <string name="cancel">Cancel</string>
 </resources>

@@ -14,6 +14,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.Px;
 import androidx.appcompat.widget.AppCompatTextView;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 
 /**
@@ -33,6 +35,7 @@ import java.util.Arrays;
 public class DrawableTextView extends AppCompatTextView {
 
     @IntDef({POSITION.START, POSITION.TOP, POSITION.END, POSITION.BOTTOM})
+    @Retention(RetentionPolicy.SOURCE)
     public @interface POSITION {
         int START = 0;
         int TOP = 1;

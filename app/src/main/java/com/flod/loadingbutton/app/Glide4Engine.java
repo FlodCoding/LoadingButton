@@ -1,4 +1,4 @@
-package com.flod.hardloadingbutton;
+package com.flod.loadingbutton.app;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;

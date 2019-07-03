@@ -1,4 +1,4 @@
-package com.flod.hardloadingbutton;
+package com.flod.loadingbutton.app;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -43,6 +43,7 @@ import com.flod.loadingbutton.DrawableTextView;
 import com.flod.loadingbutton.LoadingButton;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.internal.entity.CaptureStrategy;
 
 import java.util.Arrays;
 import java.util.List;
@@ -172,7 +173,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 loadingBtn.setDisableClickOnLoading(isChecked);
             }
         });
-        
+
     }
 
     private void resetView() {
@@ -318,6 +319,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     Matisse.from(MainActivity.this)
                             .choose(MimeType.ofImage())
+                            .countable(false)
+                            .capture(true)
+                            .captureStrategy(new CaptureStrategy(true, "com.flod.hardloadingbutton.provider"))
                             .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                             .thumbnailScale(0.5f)
                             .imageEngine(new Glide4Engine())
@@ -330,6 +334,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     Matisse.from(MainActivity.this)
                             .choose(MimeType.ofImage())
+                            .countable(false)
+                            .capture(true)
                             .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                             .thumbnailScale(0.5f)
                             .imageEngine(new Glide4Engine())
@@ -383,6 +389,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showEditDialog("SetLoadingText", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        tvLoadingText.setText(editTextString);
                         loadingText = editTextString;
                         editTextString = "";
                     }
@@ -393,6 +400,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showEditDialog("SetCompleteText", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        tvCompleteText.setText(editTextString);
                         completeText = editTextString;
                         editTextString = "";
                     }
@@ -403,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showEditDialog("SetFailText", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        tvFailText.setText(editTextString);
                         failText = editTextString;
                         editTextString = "";
                     }

@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="15dp"
-        tools:context=".MainActivity"
+        tools:context=".app.MainActivity"
         tools:ignore="HardcodedText,ContentDescription">
 
         <com.flod.loadingbutton.LoadingButton

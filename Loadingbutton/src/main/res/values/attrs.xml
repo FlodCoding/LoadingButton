@@ -17,7 +17,7 @@
         <attr name="enableShrink" format="boolean" />
         <attr name="disableClickOnLoading" format="boolean" />
         <attr name="shrinkDuration" format="integer" />
-        <attr name="loadingDrawableSize" format="dimension" />
+        <attr name="loadingEndDrawableSize" format="dimension" />
         <attr name="loadingDrawableColor" format="color" />
         <attr name="loadingDrawablePosition" format="enum">
             <enum name="Start" value="0" />

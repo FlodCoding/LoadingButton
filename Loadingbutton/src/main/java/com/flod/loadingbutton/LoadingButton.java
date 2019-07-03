@@ -41,6 +41,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
  * 8、多次start和end 会出错 √
  * 9、设置完Drawable大小后，start后再次设置rootView大小失控,是因为原来是wrap_content √
  * 10、start和compete同时按Loading没有关 √
+ * 11、loading完后设置loading大小好像是无效的
  */
 @SuppressWarnings({"UnusedReturnValue,SameParameterValue", "unused"})
 public class LoadingButton extends DrawableTextView {
@@ -96,7 +97,7 @@ public class LoadingButton extends DrawableTextView {
         enableShrink = array.getBoolean(R.styleable.LoadingButton_enableShrink, false);
         disableClickOnLoading = array.getBoolean(R.styleable.LoadingButton_disableClickOnLoading, false);
         mShrinkDuration = array.getInt(R.styleable.LoadingButton_shrinkDuration, 450);
-        int loadingDrawableSize = array.getDimensionPixelSize(R.styleable.LoadingButton_loadingDrawableSize, (int) (enableShrink ? getTextSize() * 2 : getTextSize()));
+        int loadingDrawableSize = array.getDimensionPixelSize(R.styleable.LoadingButton_loadingEndDrawableSize, (int) (enableShrink ? getTextSize() * 2 : getTextSize()));
         int loadingDrawableColor = array.getColor(R.styleable.LoadingButton_loadingDrawableColor, getTextColors().getDefaultColor());
         int loadingDrawablePosition = array.getInt(R.styleable.LoadingButton_loadingDrawablePosition, POSITION.START);
         int endCompleteDrawableResId = array.getResourceId(R.styleable.LoadingButton_endCompleteDrawable, -1);
@@ -439,7 +440,7 @@ public class LoadingButton extends DrawableTextView {
      * 收缩后的尺寸（正方形）
      */
     public int getShrinkSize() {
-        return Math.max(Math.min(mRootViewSizeSaved[0], mRootViewSizeSaved[1]), getLoadingDrawableSize());
+        return Math.max(Math.min(mRootViewSizeSaved[0], mRootViewSizeSaved[1]), getLoadingEndDrawableSize());
     }
 
     /**
@@ -499,7 +500,7 @@ public class LoadingButton extends DrawableTextView {
         mEnableTextInCenterSaved = enableTextInCenter;
         setDrawable(mLoadingPosition, null, 0, 0);
         mLoadingPosition = position;
-        setDrawable(position, getLoadingDrawable(), getLoadingDrawableSize(), getLoadingDrawableSize());
+        setDrawable(position, getLoadingDrawable(), getLoadingEndDrawableSize(), getLoadingEndDrawableSize());
         return this;
     }
 
@@ -515,7 +516,7 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
-    public int getLoadingDrawableSize() {
+    public int getLoadingEndDrawableSize() {
         return mLoadingSize;
     }
 
@@ -845,7 +846,7 @@ public class LoadingButton extends DrawableTextView {
                     canvas.translate(offsets[0], offsets[1]);
                     mCirclePath.reset();
                     mCirclePath.addCircle(mBounds.centerX(), mBounds.centerY(),
-                            ((getLoadingDrawableSize() >> 1) * 1.5f) * animValue, Path.Direction.CW);
+                            ((getLoadingEndDrawableSize() >> 1) * 1.5f) * animValue, Path.Direction.CW);
                     canvas.clipPath(mCirclePath);
                     canvas.drawBitmap(targetBitMap, null, mBounds, mPaint);
                     canvas.restore();
@@ -926,7 +927,7 @@ public class LoadingButton extends DrawableTextView {
 
         void onRestoring();
 
-        void onEndDrawableAppear(boolean isSuccess, EndDrawable endDrawable);
+        void onEndDrawableAppear(boolean isComplete, EndDrawable endDrawable);
 
         void onCompleted();
 

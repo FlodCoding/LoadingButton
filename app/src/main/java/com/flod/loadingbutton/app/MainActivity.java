@@ -184,6 +184,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         swDisableClickOnLoading.setChecked(true);
         tvShrinkDuration.setText("500ms");
         tvLoadingDrawableColor.setText("TextColor");
+        tvLoadingDrawableColor.setBackground(null);
         tvLoadingPosition.setText("START");
         imEndCompleteDrawableIcon.setImageResource(R.drawable.ic_successful);
         imEndFailDrawableIcon.setImageResource(R.drawable.ic_fail);
@@ -211,39 +212,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setCompleteDrawable(R.drawable.ic_successful)
                 .setFailDrawable(R.drawable.ic_fail)
                 .setEndDrawableKeepDuration(900)
-                .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2));
+                .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2))
+                .setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
+                    @Override
+                    public void onCanceled() {
+                        Toast.makeText(getApplicationContext(), "onCanceled", Toast.LENGTH_SHORT).show();
+                    }
 
-        loadingBtn.setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
-            @Override
-            public void onCanceled() {
-                Toast.makeText(getApplicationContext(), "onCanceled", Toast.LENGTH_SHORT).show();
-            }
+                    @Override
+                    public void onFailed() {
+                        Toast.makeText(getApplicationContext(), "onFailed", Toast.LENGTH_SHORT).show();
+                        loadingBtn.setText("Submit");
+                    }
 
-            @Override
-            public void onFailed() {
-                Toast.makeText(getApplicationContext(), "onFailed", Toast.LENGTH_SHORT).show();
-                loadingBtn.setText("Submit");
-            }
+                    @Override
+                    public void onCompleted() {
+                        Toast.makeText(getApplicationContext(), "onCompleted", Toast.LENGTH_SHORT).show();
+                    }
 
-            @Override
-            public void onCompleted() {
-                Toast.makeText(getApplicationContext(), "onCompleted", Toast.LENGTH_SHORT).show();
-            }
+                    @Override
+                    public void onLoadingStart() {
+                        loadingBtn.setText(loadingText);
+                    }
 
-            @Override
-            public void onLoadingStart() {
-                loadingBtn.setText(loadingText);
-            }
+                    @Override
+                    public void onEndDrawableAppear(boolean isSuccess, LoadingButton.EndDrawable endDrawable) {
+                        if (isSuccess) {
+                            loadingBtn.setText(completeText);
+                        } else {
+                            loadingBtn.setText(failText);
+                        }
+                    }
+                });
 
-            @Override
-            public void onEndDrawableAppear(boolean isSuccess, LoadingButton.EndDrawable endDrawable) {
-                if (isSuccess) {
-                    loadingBtn.setText(completeText);
-                } else {
-                    loadingBtn.setText(failText);
-                }
-            }
-        });
     }
 
 
@@ -360,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
             case R.id.tvLoadingEndDrawableSize: {
-                showSeekBarDialog("SetLoadingEndDrawableSize", 250, loadingBtn.getLoadingDrawableSize(), false,
+                showSeekBarDialog("SetLoadingEndDrawableSize", 250, loadingBtn.getLoadingEndDrawableSize(), false,
                         new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {

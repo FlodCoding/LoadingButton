@@ -11,7 +11,7 @@
         android:orientation="vertical"
         android:padding="15dp"
         tools:context=".app.MainActivity"
-        tools:ignore="HardcodedText,ContentDescription">
+        tools:ignore="HardcodedText,ContentDescription,UnusedAttribute">
 
         <com.flod.loadingbutton.LoadingButton
             android:id="@+id/loadingBtn"
@@ -31,7 +31,7 @@
             app:endCompleteDrawable="@drawable/ic_successful"
             app:endFailDrawable="@drawable/ic_fail"
             app:loadingDrawablePosition="Start"
-            tools:ignore="HardcodedText" />
+            app/>
 
         <RelativeLayout
             android:layout_width="match_parent"

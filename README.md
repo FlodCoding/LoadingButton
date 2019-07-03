@@ -1,10 +1,10 @@
 # LoadingButton [![LoadingButton](https://jitpack.io/v/FlodCoding/LoadingButton.svg)](https://jitpack.io/#FlodCoding/LoadingButton)
 
- 一个小巧灵活的带加载功能的按钮控件，继承自[DrawableTextView]()
+ 一个小巧灵活的带加载功能的按钮控件，继承自[DrawableTextView]()，加载动画来自于[CircularProgressDrawable](https://developer.android.google.cn/reference/android/support/v4/widget/CircularProgressDrawable?hl=en)
 
 ## 特性
    * 支持按钮收缩
-   * 支持加载取消，加载完成和失败图标替换
+   * 支持加载完成和失败图标显示
    * 可设置加载动画颜色、大小、位置
    
 ## 如何导入
@@ -84,7 +84,7 @@ loadingBtn.setEnableShrink(true)
 
                     @Override
                     public void onEndDrawableAppear(boolean isComplete, LoadingButton.EndDrawable endDrawable) {
-                        if (isSuccess) {
+                        if (isComplete) {
                             loadingBtn.setText("Complete);
                         } else {
                             loadingBtn.setText("Fail");

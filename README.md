@@ -1,4 +1,4 @@
-# LoadingButton
+# LoadingButton [![LoadingButton](https://jitpack.io/v/FlodCoding/LoadingButton.svg)](https://jitpack.io/#FlodCoding/LoadingButton)
 
  一个小巧灵活的带加载功能的按钮控件，继承自[DrawableTextView]()
 
@@ -7,6 +7,25 @@
    * 支持加载取消，加载完成和失败图标替换
    * 可设置加载动画颜色、大小、位置
    
+## 如何导入
+
+根目录下的build.gradle
+
+	allprojects {
+		  repositories {
+		  	...
+		  maven { url 'https://jitpack.io' }
+		  }
+	}
+ 
+ 
+ App目录下的build.gradle 
+ 
+ 	dependencies {
+     implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha1'
+  }
+  
+ 
 ## Demo
 [点我下载](https://github.com/FlodCoding/LoadingButton/raw/master/app/build/outputs/apk/debug/app-debug.apk)
 
@@ -77,14 +96,19 @@ loadingBtn.setEnableShrink(true)
 ## 属性说明
 属性名|类型|说明
 ---|:--:|---:
-enableShrink|boolean  (default:true)|设置加载时收缩
-disableClickOnLoading|boolen (default:true)|设置加载时禁用点击
-shrinkDuration|integer (default:450ms)|收缩动画时间
-loadingEndDrawableSize|dimension (default:TextSize*2)|设置LaodingDrawable和EndDrawable大小
-loadingDrawableColor|color (default:TextColor)设置Loading的颜色
-loadingDrawablePosition|enum：Start,Top,End,Bottom (default:Start)|设置Loading的位置
-endCompleteDrawable|reference|完成时显示的图标
-endFailDrawable|reference|失败时显示的图标
-endDrawableAppearTime|integer|完成或失败图标从无到有的时间
-endDrawableDuration|integer|完成或失败图标停留的时间
+enableShrink            |boolean  (default:true)                     |设置加载时收缩
+disableClickOnLoading   |boolen (default:true)                       |设置加载时禁用点击
+shrinkDuration          |integer (default:450ms)                     |收缩动画时间
+loadingEndDrawableSize  |dimension (default:TextSize \*2)            |设置LaodingDrawable和EndDrawable大小
+loadingDrawableColor    |color (default:TextColor)                   |设置Loading的颜色
+loadingDrawablePosition |enum：Start,Top,End,Bottom (default:Start)  |设置Loading的位置
+endCompleteDrawable     |reference                                   |完成时显示的图标
+endFailDrawable         |reference                                   |失败时显示的图标
+endDrawableAppearTime   |integer                                     |完成或失败图标从无到有的时间
+endDrawableDuration     |integer                                     |完成或失败图标停留的时间
 
+## Demo使用的第三方库
+
+### [Matisse](https://github.com/zhihu/Matisse)
+
+### [Glide](https://github.com/bumptech/glide)

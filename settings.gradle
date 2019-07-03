@@ -1,1 +1,1 @@
-include ':app', ':Loadingbutton'
+include ':app', ':Loadingbutton-support'

@@ -5,14 +5,14 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Dimension;
+import android.support.annotation.IntDef;
+import android.support.annotation.Nullable;
+import android.support.annotation.Px;
+import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.Gravity;
 
-import androidx.annotation.Dimension;
-import androidx.annotation.IntDef;
-import androidx.annotation.Nullable;
-import androidx.annotation.Px;
-import androidx.appcompat.widget.AppCompatTextView;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

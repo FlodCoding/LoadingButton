@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
@@ -28,7 +30,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
  * Creator: Flood
  * Date: 2019-06-13
  * UseDes:
- *
+ * <p>
  * 1、改变loading的大小 √
  * 2、收缩动画后不居中 √
  * 3、收缩后的大小随loading的大小决定 √
@@ -46,6 +48,7 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
 @SuppressWarnings({"UnusedReturnValue,SameParameterValue", "unused"})
 public class LoadingButton extends DrawableTextView {
     private int curStatus = STATE.IDE;      //当前的状态
+
     interface STATE {
         int IDE = 0;
         int SHRINKING = 1;
@@ -133,6 +136,8 @@ public class LoadingButton extends DrawableTextView {
         }
 
     }
+
+
 
     /**
      * 设置收缩动画，主要用来收缩和恢复布局的宽度，动画开始前会保存一些收缩前的参数（文字，其他Drawable等）
@@ -240,9 +245,6 @@ public class LoadingButton extends DrawableTextView {
         getLayoutParams().width = mRootViewSizeSaved[0];
         getLayoutParams().height = mRootViewSizeSaved[1];
         requestLayout();
-        if (disableClickOnLoading) {
-            super.setEnabled(true);
-        }
 
         addOnLayoutChangeListener(new OnLayoutChangeListener() {
             @Override
@@ -253,6 +255,21 @@ public class LoadingButton extends DrawableTextView {
             }
         });
 
+    }
+
+
+    /**
+     * 如果disableClickOnLoading==true，点击会无效
+     */
+    @SuppressLint("ClickableViewAccessibility")
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            //disable click
+            if (disableClickOnLoading && curStatus != STATE.IDE)
+                return true;
+        }
+        return super.onTouchEvent(event);
     }
 
 
@@ -349,9 +366,9 @@ public class LoadingButton extends DrawableTextView {
      */
     public void start() {
         //disable click
-        if (disableClickOnLoading) {
+        /*if (disableClickOnLoading) {
             super.setEnabled(false);
-        }
+        }*/
 
         //cancel last loading
         if (curStatus == STATE.SHRINKING || curStatus == STATE.LOADING)

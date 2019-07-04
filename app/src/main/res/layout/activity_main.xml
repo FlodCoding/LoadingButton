@@ -30,8 +30,7 @@
             app:enableShrink="true"
             app:endCompleteDrawable="@drawable/ic_successful"
             app:endFailDrawable="@drawable/ic_fail"
-            app:loadingDrawablePosition="Start"
-            app/>
+            app:loadingDrawablePosition="Start" />
 
         <RelativeLayout
             android:layout_width="match_parent"

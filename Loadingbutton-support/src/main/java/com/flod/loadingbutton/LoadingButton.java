@@ -30,7 +30,7 @@ import android.view.View;
  * Creator: Flood
  * Date: 2019-06-13
  * UseDes:
- *
+ * <p>
  * 1、改变loading的大小 √
  * 2、收缩动画后不居中 √
  * 3、收缩后的大小随loading的大小决定 √
@@ -44,11 +44,11 @@ import android.view.View;
  * 9、设置完Drawable大小后，start后再次设置rootView大小失控,是因为原来是wrap_content √
  * 10、start和compete同时按Loading没有关 √
  * 11、loading完后设置loading大小好像是无效的
+ * 12、如果是没有EndDrawable但是有文字，那是否也要停留一段时间呢？
  */
 @SuppressWarnings({"UnusedReturnValue,SameParameterValue", "unused"})
 public class LoadingButton extends DrawableTextView {
     private int curStatus = STATE.IDE;      //当前的状态
-
     interface STATE {
         int IDE = 0;
         int SHRINKING = 1;
@@ -137,8 +137,6 @@ public class LoadingButton extends DrawableTextView {
 
     }
 
-
-
     /**
      * 设置收缩动画，主要用来收缩和恢复布局的宽度，动画开始前会保存一些收缩前的参数（文字，其他Drawable等）
      */
@@ -178,11 +176,12 @@ public class LoadingButton extends DrawableTextView {
                 } else {
                     //begin restore
                     curStatus = STATE.RESTORING;
+                    stopLoading();
                     if (mOnLoadingListener != null) {
                         mOnLoadingListener.onRestoring();
                         mOnLoadingListener.onLoadingStop();
                     }
-                    stopLoading();
+
                 }
             }
 
@@ -697,17 +696,14 @@ public class LoadingButton extends DrawableTextView {
                 @Override
                 public void onAnimationStart(Animator animation) {
                     super.onAnimationStart(animation);
+                    curStatus = STATE.END_DRAWABLE_SHOWING;
                     if (mOnLoadingListener != null) {
                         mOnLoadingListener.onEndDrawableAppear(!isFail, mEndDrawable);
                     }
-                    curStatus = STATE.END_DRAWABLE_SHOWING;
                 }
 
                 @Override
                 public void onAnimationEnd(Animator animation) {
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onLoadingStop();
-                    }
                     if (isShowing) {
                         postDelayed(mRunnable, mKeepDuration);
                     }
@@ -728,10 +724,10 @@ public class LoadingButton extends DrawableTextView {
             }
 
             //StopLoading
-            if (mOnLoadingListener != null) {
+            stopLoading();
+            if (!enableShrink && mOnLoadingListener != null) {
                 mOnLoadingListener.onLoadingStop();
             }
-            stopLoading();
 
             //end showing endDrawable
             if (isShowing) {
@@ -741,10 +737,10 @@ public class LoadingButton extends DrawableTextView {
             mAppearAnimator.start();
             isShowing = true;
 
-            //if mFailBitmap or mCompleteBitmap is null cancel appearAnim
+          /*  //if mFailBitmap or mCompleteBitmap is null cancel appearAnim
             if ((isFail && mFailBitmap == null) || (!isFail && mCompleteBitmap == null)) {
                 cancel(true);
-            }
+            }*/
         }
 
         /**
@@ -969,7 +965,7 @@ public class LoadingButton extends DrawableTextView {
         }
 
         @Override
-        public void onEndDrawableAppear(boolean isSuccess, EndDrawable endDrawable) {
+        public void onEndDrawableAppear(boolean isComplete, EndDrawable endDrawable) {
 
         }
 

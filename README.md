@@ -23,10 +23,10 @@
  
  	dependencies {
 		//Androidx
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha2'
+		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha3'
 		
 		//Support-appcompat
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha2-support'
+		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha3-support'
      	}
   
  
@@ -55,6 +55,12 @@
 ```
 ### Code
 ```
+
+loadingBtn.start();     //开始加载
+loadingBtn.complete();  //加载成功
+loadingBtn.fail();      //加载失败
+loadingBtn.cancel();    //加载取消
+
 loadingBtn.setEnableShrink(true)
                 .setDisableClickOnLoading(true)
                 .setShrinkDuration(450)

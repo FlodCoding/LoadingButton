@@ -365,11 +365,6 @@ public class LoadingButton extends DrawableTextView {
      * shrink -> startLoading
      */
     public void start() {
-        //disable click
-        /*if (disableClickOnLoading) {
-            super.setEnabled(false);
-        }*/
-
         //cancel last loading
         if (curStatus == STATE.SHRINKING || curStatus == STATE.LOADING)
             isCancel = true;

@@ -1,6 +1,6 @@
 # LoadingButton [![LoadingButton](https://jitpack.io/v/FlodCoding/LoadingButton.svg)](https://jitpack.io/#FlodCoding/LoadingButton)
 
- 一个小巧灵活的带加载功能的按钮控件，继承自[DrawableTextView]()，加载动画来自于[CircularProgressDrawable](https://developer.android.google.cn/reference/android/support/v4/widget/CircularProgressDrawable?hl=en)
+ 一个小巧灵活的带加载功能的按钮控件，继承自[DrawableTextView](https://github.com/FlodCoding/LoadingButton/blob/master/DrawableText.md)，加载动画来自于[CircularProgressDrawable](https://developer.android.google.cn/reference/android/support/v4/widget/CircularProgressDrawable?hl=en)
 
 ## 特性
    * 支持按钮收缩

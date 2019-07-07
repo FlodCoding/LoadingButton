@@ -97,8 +97,8 @@ public class LoadingButton extends DrawableTextView {
 
         //getConfig
         TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.LoadingButton);
-        enableShrink = array.getBoolean(R.styleable.LoadingButton_enableShrink, false);
-        disableClickOnLoading = array.getBoolean(R.styleable.LoadingButton_disableClickOnLoading, false);
+        enableShrink = array.getBoolean(R.styleable.LoadingButton_enableShrink, true);
+        disableClickOnLoading = array.getBoolean(R.styleable.LoadingButton_disableClickOnLoading, true);
         mShrinkDuration = array.getInt(R.styleable.LoadingButton_shrinkDuration, 450);
         int loadingDrawableSize = array.getDimensionPixelSize(R.styleable.LoadingButton_loadingEndDrawableSize, (int) (enableShrink ? getTextSize() * 2 : getTextSize()));
         int loadingDrawableColor = array.getColor(R.styleable.LoadingButton_loadingDrawableColor, getTextColors().getDefaultColor());

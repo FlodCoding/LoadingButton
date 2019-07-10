@@ -29,7 +29,8 @@ import java.util.Arrays;
  * 4、多次setCompoundDrawablesRelative,图片会发生偏移 √
  * 5、寻找一个合适的测量文字大小的时机，避免多次测量消耗性能 √
  * 6、在draw时，避免用取出旧的drawable的bounds绘制，需要预先取出并存储起来,还需要注意在存储bounds时是不是有平移过 √
- * 7、
+ * 7、foreground会受平移影响 √
+ * 8、如果是只有hint没有Text需要也需要测量出文字大小√
  */
 @SuppressWarnings({"UnusedReturnValue", "unused", "SameParameterValue"})
 public class DrawableTextView extends AppCompatTextView {
@@ -118,6 +119,7 @@ public class DrawableTextView extends AppCompatTextView {
         }
     }
 
+
     protected void onFirstLayout(int left, int top, int right, int bottom) {
         measureTextWidth();
         measureTextHeight();
@@ -176,8 +178,14 @@ public class DrawableTextView extends AppCompatTextView {
                 this.canvasTransY = transY;
             }
         }
-
         super.onDraw(canvas);
+    }
+
+    @Override
+    public void onDrawForeground(Canvas canvas) {
+        //再次平移回去
+        canvas.translate(-canvasTransX,-canvasTransY);
+        super.onDrawForeground(canvas);
     }
 
     /**
@@ -219,7 +227,13 @@ public class DrawableTextView extends AppCompatTextView {
     protected void measureTextWidth() {
         final Rect textBounds = new Rect();
         getLineBounds(0, textBounds);
-        final float width = getPaint().measureText(getText().toString());
+        String text = "";
+        if (getText() != null && getText().length() > 0) {
+            text = getText().toString();
+        } else if (getHint() != null && getHint().length() > 0) {
+            text = getHint().toString();
+        }
+        final float width = getPaint().measureText(text);
         final float maxWidth = textBounds.width();
         mTextWidth = width <= maxWidth || maxWidth == 0 ? width : maxWidth;
     }
@@ -228,7 +242,8 @@ public class DrawableTextView extends AppCompatTextView {
      * 获取文本的高度，通过{@link #getLineHeight}乘文本的行数
      */
     protected void measureTextHeight() {
-        if (getText().length() > 0)
+        if ((getText() != null && getText().length() > 0)
+                || (getHint() != null && getHint().length() > 0))
             mTextHeight = getLineHeight() * getLineCount();
         else
             mTextHeight = 0;

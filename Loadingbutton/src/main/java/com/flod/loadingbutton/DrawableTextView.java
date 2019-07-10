@@ -27,7 +27,7 @@ import java.util.Arrays;
  * 2、设置Drawable的大小 √
  * 3、文字居中，图片靠边居中 √
  * 4、多次setCompoundDrawablesRelative,图片会发生偏移 √
- * 5、寻找一个合适的测量文字大小的时机，避免多次测量消耗性能 √
+ * 5、寻找一个合适的测量文字大小的时机，避免多次测量 √
  * 6、在draw时，避免用取出旧的drawable的bounds绘制，需要预先取出并存储起来,还需要注意在存储bounds时是不是有平移过 √
  * 7、foreground会受平移影响 √
  * 8、如果是只有hint没有Text需要也需要测量出文字大小√
@@ -52,7 +52,8 @@ public class DrawableTextView extends AppCompatTextView {
     private float mTextHeight;
 
     private boolean firstLayout;
-    private boolean isCenter;                   //Gravity是否是居中
+    private boolean isCenterHorizontal;         //Gravity是否水平居中
+    private boolean isCenterVertical;           //Gravity是否垂直居中
     private boolean enableCenterDrawables;      //drawable跟随文本居中
     private boolean enableTextInCenter;         //默认情况下文字与图片共同居中，开启后文字在最中间，图片紧挨
 
@@ -109,8 +110,8 @@ public class DrawableTextView extends AppCompatTextView {
         super.onLayout(changed, left, top, right, bottom);
         if (enableCenterDrawables) {
             final int absoluteGravity = Gravity.getAbsoluteGravity(getGravity(), getLayoutDirection());
-            isCenter = (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL
-                    || (absoluteGravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL;
+            isCenterHorizontal = (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL;
+            isCenterVertical = (absoluteGravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL;
         }
 
         if (!firstLayout) {
@@ -131,7 +132,7 @@ public class DrawableTextView extends AppCompatTextView {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        if (enableCenterDrawables && isCenter) {
+        if (enableCenterDrawables && (isCenterHorizontal | isCenterVertical)) {
 
             //画布的偏移量
             int transX = 0, transY = 0;
@@ -141,7 +142,9 @@ public class DrawableTextView extends AppCompatTextView {
                 int offset = (int) calcOffset(POSITION.START);
                 mDrawables[POSITION.START].setBounds(bounds.left + offset, bounds.top,
                         bounds.right + offset, bounds.bottom);
-                transX -= (mDrawablesBounds[POSITION.START].width() + getCompoundDrawablePadding()) >> 1;
+
+                if (isCenterHorizontal)
+                    transX -= (mDrawablesBounds[POSITION.START].width() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.TOP] != null) {
@@ -151,7 +154,8 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.TOP].setBounds(bounds.left, bounds.top + offset,
                         bounds.right, bounds.bottom + offset);
 
-                transY -= (mDrawablesBounds[POSITION.TOP].height() + getCompoundDrawablePadding()) >> 1;
+                if (isCenterVertical)
+                    transY -= (mDrawablesBounds[POSITION.TOP].height() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.END] != null) {
@@ -160,7 +164,8 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.END].setBounds(bounds.left + offset, bounds.top,
                         bounds.right + offset, bounds.bottom);
 
-                transX += (mDrawablesBounds[POSITION.END].width() + getCompoundDrawablePadding()) >> 1;
+                if (isCenterHorizontal)
+                    transX += (mDrawablesBounds[POSITION.END].width() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.BOTTOM] != null) {
@@ -169,7 +174,8 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.BOTTOM].setBounds(bounds.left, bounds.top + offset,
                         bounds.right, bounds.bottom + offset);
 
-                transY += (mDrawablesBounds[POSITION.BOTTOM].height() + getCompoundDrawablePadding()) >> 1;
+                if (isCenterVertical)
+                    transY += (mDrawablesBounds[POSITION.BOTTOM].height() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (enableTextInCenter) {

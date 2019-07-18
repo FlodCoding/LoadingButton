@@ -44,7 +44,6 @@ import androidx.swiperefreshlayout.widget.CircularProgressDrawable;
  * 9、设置完Drawable大小后，start后再次设置rootView大小失控,是因为原来是wrap_content √
  * 10、start和compete同时按Loading没有关 √
  * 11、loading完后设置loading大小好像是无效的
- * 12、如果是没有EndDrawable但是有文字，那是否也要停留一段时间呢？
  */
 @SuppressWarnings({"UnusedReturnValue,SameParameterValue", "unused"})
 public class LoadingButton extends DrawableTextView {
@@ -709,6 +708,9 @@ public class LoadingButton extends DrawableTextView {
                     if (isShowing) {
                         postDelayed(mRunnable, mKeepDuration);
                     }
+                    if (mOnLoadingListener != null) {
+                        mOnLoadingListener.onEndDrawableAppearDone(!isFail);
+                    }
                 }
             });
         }
@@ -739,10 +741,6 @@ public class LoadingButton extends DrawableTextView {
             mAppearAnimator.start();
             isShowing = true;
 
-          /*  //if mFailBitmap or mCompleteBitmap is null cancel appearAnim
-            if ((isFail && mFailBitmap == null) || (!isFail && mCompleteBitmap == null)) {
-                cancel(true);
-            }*/
         }
 
         /**
@@ -939,6 +937,8 @@ public class LoadingButton extends DrawableTextView {
 
         void onEndDrawableAppear(boolean isComplete, EndDrawable endDrawable);
 
+        void onEndDrawableAppearDone(boolean isComplete);
+
         void onCompleted();
 
         void onFailed();
@@ -968,6 +968,11 @@ public class LoadingButton extends DrawableTextView {
 
         @Override
         public void onEndDrawableAppear(boolean isComplete, EndDrawable endDrawable) {
+
+        }
+
+        @Override
+        public void onEndDrawableAppearDone(boolean isComplete) {
 
         }
 

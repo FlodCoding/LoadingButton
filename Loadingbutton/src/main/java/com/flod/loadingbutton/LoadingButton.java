@@ -73,6 +73,7 @@ public class LoadingButton extends DrawableTextView {
     private int mLoadingSize;
     private int mLoadingPosition;
 
+    private boolean isSizeChanging;         //当前布局尺寸正发生改变
     private boolean nextShrinkReverse;      //下一步是否是恢复动画
     private boolean isCancel;               //是取消当前动画
     private boolean isFail;
@@ -164,12 +165,13 @@ public class LoadingButton extends DrawableTextView {
                 if (!nextShrinkReverse) {
                     //begin shrink
                     curStatus = STATE.SHRINKING;
+                    isSizeChanging = true;
                     if (mOnLoadingListener != null) {
                         mOnLoadingListener.onShrinking();
                     }
 
                     saveStatus();
-                    setText("");
+                    LoadingButton.super.setText("",BufferType.NORMAL);
                     setCompoundDrawablePadding(0);
                     setCompoundDrawablesRelative(mLoadingDrawable, null, null, null);
                     setEnableTextInCenter(false);
@@ -197,6 +199,7 @@ public class LoadingButton extends DrawableTextView {
                 } else {
                     //restore over
                     curStatus = STATE.IDE;
+                    isSizeChanging = false;
                     restoreStatus();
                     endCallbackListener();
                     nextShrinkReverse = false;
@@ -611,10 +614,11 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
+
     @Override
     public void setText(CharSequence text, BufferType type) {
-        if (enableShrink && (curStatus != STATE.IDE)) {
-            text = "";
+        if (enableShrink && isSizeChanging) {
+            return;
         }
         super.setText(text, type);
     }

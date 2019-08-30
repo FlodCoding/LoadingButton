@@ -171,7 +171,7 @@ public class LoadingButton extends DrawableTextView {
                     }
 
                     saveStatus();
-                    LoadingButton.super.setText("",BufferType.NORMAL);
+                    LoadingButton.super.setText("", BufferType.NORMAL);
                     setCompoundDrawablePadding(0);
                     setCompoundDrawablesRelative(mLoadingDrawable, null, null, null);
                     setEnableTextInCenter(false);
@@ -614,7 +614,6 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
-
     @Override
     public void setText(CharSequence text, BufferType type) {
         if (enableShrink && isSizeChanging) {
@@ -928,6 +927,19 @@ public class LoadingButton extends DrawableTextView {
             return bitmap;
         }
         return null;
+    }
+
+
+    @Override
+    protected void onDetachedFromWindow() {
+        //release
+        mShrinkAnimator.cancel();
+        mLoadingDrawable.stop();
+        if (mEndDrawable != null)
+            mEndDrawable.mAppearAnimator.cancel();
+
+        super.onDetachedFromWindow();
+
     }
 
     public interface OnLoadingListener {

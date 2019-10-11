@@ -27,9 +27,10 @@ import java.util.Arrays;
  * 2、设置Drawable的大小 √
  * 3、文字居中，图片靠边居中 √
  * 4、多次setCompoundDrawablesRelative,图片会发生偏移 √
- * 5、寻找一个合适的测量文字大小的时机，避免多次测量消耗性能 √
+ * 5、寻找一个合适的测量文字大小的时机，避免多次测量 √
  * 6、在draw时，避免用取出旧的drawable的bounds绘制，需要预先取出并存储起来,还需要注意在存储bounds时是不是有平移过 √
- * 7、
+ * 7、foreground会受平移影响 √
+ * 8、如果是只有hint没有Text需要也需要测量出文字大小√
  */
 @SuppressWarnings({"UnusedReturnValue", "unused", "SameParameterValue"})
 public class DrawableTextView extends AppCompatTextView {
@@ -51,7 +52,8 @@ public class DrawableTextView extends AppCompatTextView {
     private float mTextHeight;
 
     private boolean firstLayout;
-    private boolean isCenter;                   //Gravity是否是居中
+    private boolean isCenterHorizontal;         //Gravity是否水平居中
+    private boolean isCenterVertical;           //Gravity是否垂直居中
     private boolean enableCenterDrawables;      //drawable跟随文本居中
     private boolean enableTextInCenter;         //默认情况下文字与图片共同居中，开启后文字在最中间，图片紧挨
 
@@ -108,8 +110,8 @@ public class DrawableTextView extends AppCompatTextView {
         super.onLayout(changed, left, top, right, bottom);
         if (enableCenterDrawables) {
             final int absoluteGravity = Gravity.getAbsoluteGravity(getGravity(), getLayoutDirection());
-            isCenter = (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL
-                    || (absoluteGravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL;
+            isCenterHorizontal = (absoluteGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == Gravity.CENTER_HORIZONTAL;
+            isCenterVertical = (absoluteGravity & Gravity.VERTICAL_GRAVITY_MASK) == Gravity.CENTER_VERTICAL;
         }
 
         if (!firstLayout) {
@@ -117,6 +119,7 @@ public class DrawableTextView extends AppCompatTextView {
             firstLayout = true;
         }
     }
+
 
     protected void onFirstLayout(int left, int top, int right, int bottom) {
         measureTextWidth();
@@ -129,7 +132,7 @@ public class DrawableTextView extends AppCompatTextView {
     @Override
     protected void onDraw(Canvas canvas) {
 
-        if (enableCenterDrawables && isCenter) {
+        if (enableCenterDrawables && (isCenterHorizontal | isCenterVertical)) {
 
             //画布的偏移量
             int transX = 0, transY = 0;
@@ -139,7 +142,9 @@ public class DrawableTextView extends AppCompatTextView {
                 int offset = (int) calcOffset(POSITION.START);
                 mDrawables[POSITION.START].setBounds(bounds.left + offset, bounds.top,
                         bounds.right + offset, bounds.bottom);
-                transX -= (mDrawablesBounds[POSITION.START].width() + getCompoundDrawablePadding()) >> 1;
+
+                if (isCenterHorizontal)
+                    transX -= (mDrawablesBounds[POSITION.START].width() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.TOP] != null) {
@@ -149,7 +154,8 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.TOP].setBounds(bounds.left, bounds.top + offset,
                         bounds.right, bounds.bottom + offset);
 
-                transY -= (mDrawablesBounds[POSITION.TOP].height() + getCompoundDrawablePadding()) >> 1;
+                if (isCenterVertical)
+                    transY -= (mDrawablesBounds[POSITION.TOP].height() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.END] != null) {
@@ -158,7 +164,8 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.END].setBounds(bounds.left + offset, bounds.top,
                         bounds.right + offset, bounds.bottom);
 
-                transX += (mDrawablesBounds[POSITION.END].width() + getCompoundDrawablePadding()) >> 1;
+                if (isCenterHorizontal)
+                    transX += (mDrawablesBounds[POSITION.END].width() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (mDrawables[POSITION.BOTTOM] != null) {
@@ -167,7 +174,8 @@ public class DrawableTextView extends AppCompatTextView {
                 mDrawables[POSITION.BOTTOM].setBounds(bounds.left, bounds.top + offset,
                         bounds.right, bounds.bottom + offset);
 
-                transY += (mDrawablesBounds[POSITION.BOTTOM].height() + getCompoundDrawablePadding()) >> 1;
+                if (isCenterVertical)
+                    transY += (mDrawablesBounds[POSITION.BOTTOM].height() + getCompoundDrawablePadding()) >> 1;
             }
 
             if (enableTextInCenter) {
@@ -176,8 +184,14 @@ public class DrawableTextView extends AppCompatTextView {
                 this.canvasTransY = transY;
             }
         }
-
         super.onDraw(canvas);
+    }
+
+    @Override
+    public void onDrawForeground(Canvas canvas) {
+        //再次平移回去
+        canvas.translate(-canvasTransX, -canvasTransY);
+        super.onDrawForeground(canvas);
     }
 
     /**
@@ -219,7 +233,13 @@ public class DrawableTextView extends AppCompatTextView {
     protected void measureTextWidth() {
         final Rect textBounds = new Rect();
         getLineBounds(0, textBounds);
-        final float width = getPaint().measureText(getText().toString());
+        String text = "";
+        if (getText() != null && getText().length() > 0) {
+            text = getText().toString();
+        } else if (getHint() != null && getHint().length() > 0) {
+            text = getHint().toString();
+        }
+        final float width = getPaint().measureText(text);
         final float maxWidth = textBounds.width();
         mTextWidth = width <= maxWidth || maxWidth == 0 ? width : maxWidth;
     }
@@ -228,7 +248,8 @@ public class DrawableTextView extends AppCompatTextView {
      * 获取文本的高度，通过{@link #getLineHeight}乘文本的行数
      */
     protected void measureTextHeight() {
-        if (getText().length() > 0)
+        if ((getText() != null && getText().length() > 0)
+                || (getHint() != null && getHint().length() > 0))
             mTextHeight = getLineHeight() * getLineCount();
         else
             mTextHeight = 0;
@@ -251,19 +272,27 @@ public class DrawableTextView extends AppCompatTextView {
 
     /**
      * 设置Drawable，并设置宽高
+     * 默认大小为Drawable的{@link Drawable#getBounds()} ,
+     * 如果Bounds宽高为0则，取Drawable的内部固定尺寸{@link Drawable#getIntrinsicHeight()}
      *
      * @param position {@link POSITION}
      * @param drawable Drawable
-     * @param width    DX
-     * @param height   DX
+     * @param width    Px
+     * @param height   Px
      */
     public void setDrawable(@POSITION int position, @Nullable Drawable drawable, @Px int width, @Px int height) {
         mDrawables[position] = drawable;
         if (drawable != null) {
             Rect bounds = new Rect();
             if (width == -1 && height == -1) {
-                bounds.right = drawable.getIntrinsicWidth();
-                bounds.bottom = drawable.getIntrinsicHeight();
+                if (drawable.getBounds().width() > 0 && drawable.getBounds().height() > 0) {
+                    //如果Bounds宽高大于0,则保持默认
+                    final Rect origin = drawable.getBounds();
+                    bounds.set(origin.left, origin.top, origin.right, origin.bottom);
+                } else {
+                    //否则取Drawable的内部大小
+                    bounds.set(0, 0, drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight());
+                }
             } else {
                 bounds.right = width;
                 bounds.bottom = height;
@@ -317,15 +346,19 @@ public class DrawableTextView extends AppCompatTextView {
     protected Drawable[] copyDrawables(boolean clearOffset) {
         Drawable[] drawables = Arrays.copyOf(getDrawables(), 4);
         //clear offset
-        if (clearOffset) {
-            for (Drawable drawable : drawables) {
-                if (drawable != null) {
-                    Rect bounds = drawable.getBounds();
-                    bounds.offset(-bounds.left, -bounds.top);
-                }
+        if (clearOffset)
+            clearOffset(drawables);
+
+        return drawables;
+    }
+
+    private void clearOffset(Drawable... drawables) {
+        for (Drawable drawable : drawables) {
+            if (drawable != null) {
+                Rect bounds = drawable.getBounds();
+                bounds.offset(-bounds.left, -bounds.top);
             }
         }
-        return drawables;
     }
 
     protected int dp2px(float dpValue) {
@@ -383,16 +416,26 @@ public class DrawableTextView extends AppCompatTextView {
         return this;
     }
 
-    public void setEnableCenterDrawables(boolean enable) {
+    public DrawableTextView setEnableCenterDrawables(boolean enable) {
+        if (enableCenterDrawables) {
+            //清除之前的位移
+            clearOffset(mDrawables);
+        }
         this.enableCenterDrawables = enable;
+        return this;
     }
 
-    public void setEnableTextInCenter(boolean enable) {
+    public DrawableTextView setEnableTextInCenter(boolean enable) {
         this.enableTextInCenter = enable;
+        return this;
     }
 
     public boolean isEnableTextInCenter() {
         return enableTextInCenter;
+    }
+
+    public boolean isEnableCenterDrawables() {
+        return enableCenterDrawables;
     }
 
     public Drawable[] getDrawables() {

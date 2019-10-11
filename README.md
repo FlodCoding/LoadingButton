@@ -1,6 +1,6 @@
 # LoadingButton [![LoadingButton](https://jitpack.io/v/FlodCoding/LoadingButton.svg)](https://jitpack.io/#FlodCoding/LoadingButton)
 
- 一个小巧灵活的带加载功能的按钮控件，继承自[DrawableTextView]()，加载动画来自于[CircularProgressDrawable](https://developer.android.google.cn/reference/android/support/v4/widget/CircularProgressDrawable?hl=en)
+ 一个小巧灵活的带加载功能的按钮控件，继承自[DrawableTextView](https://github.com/FlodCoding/DrawableTextView)，加载动画来自于[CircularProgressDrawable](https://developer.android.google.cn/reference/android/support/v4/widget/CircularProgressDrawable?hl=en)
 
 ## 特性
    * 支持按钮收缩
@@ -23,10 +23,10 @@
  
  	dependencies {
 		//Androidx
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha3'
+		implementation 'com.github.FlodCoding:LoadingButton:1.0.2'
 		
 		//Support-appcompat
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.0-alpha3-support'
+		implementation 'com.github.FlodCoding:LoadingButton:1.0.2-support'
      	}
   
  
@@ -64,6 +64,7 @@ loadingBtn.cancel();    //加载取消
 loadingBtn.setEnableShrink(true)
                 .setDisableClickOnLoading(true)
                 .setShrinkDuration(450)
+                .setRestoreTextWhenEnd(true)
                 .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
                 .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))
                 .setLoadingPosition(DrawableTextView.POSITION.START)
@@ -107,7 +108,8 @@ loadingBtn.setEnableShrink(true)
 属性名|类型|说明
 ---|:--:|---:
 enableShrink            |boolean  (default:true)                     |设置加载时收缩
-disableClickOnLoading   |boolen (default:true)                       |设置加载时禁用点击
+disableClickOnLoading   |boolean (default:true)                      |设置加载时禁用点击
+restoreTextWhenEnd      |boolean (default:true)                      |设置加载结束时恢复文字
 shrinkDuration          |integer (default:450ms)                     |收缩动画时间
 loadingEndDrawableSize  |dimension (default:TextSize \*2)            |设置LaodingDrawable和EndDrawable大小
 loadingDrawableColor    |color (default:TextColor)                   |设置Loading的颜色

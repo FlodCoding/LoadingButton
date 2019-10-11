@@ -454,6 +454,15 @@ public class LoadingButton extends DrawableTextView {
         return this;
     }
 
+
+    /**
+     * 结束时是否恢复文字
+     */
+    public LoadingButton setRestoreTextWhenEnd(boolean restoreTextWhenEnd) {
+        this.restoreTextWhenEnd = restoreTextWhenEnd;
+        return this;
+    }
+
     /**
      * 收缩后的尺寸（正方形）
      */

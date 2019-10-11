@@ -27,7 +27,6 @@
             android:text="Submit"
             android:textColor="@android:color/white"
             android:textSize="14sp"
-            app:restoreTextWhenEnd="false"
             app:enableShrink="true"
             app:endCompleteDrawable="@drawable/ic_successful"
             app:endFailDrawable="@drawable/ic_fail"

@@ -16,6 +16,7 @@
     <declare-styleable name="LoadingButton">
         <attr name="enableShrink" format="boolean" />
         <attr name="disableClickOnLoading" format="boolean" />
+        <attr name="restoreTextWhenEnd" format="boolean" />
         <attr name="shrinkDuration" format="integer" />
         <attr name="loadingEndDrawableSize" format="dimension" />
         <attr name="loadingDrawableColor" format="color" />

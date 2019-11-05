@@ -216,27 +216,38 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
                     @Override
                     public void onCanceled() {
+                        Log.d("LoadingButton","onCanceled");
                         Toast.makeText(getApplicationContext(), "onCanceled", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onFailed() {
+                        Log.d("LoadingButton","onFailed");
                         Toast.makeText(getApplicationContext(), "onFailed", Toast.LENGTH_SHORT).show();
+
                         loadingBtn.setText("Submit");
                     }
 
                     @Override
                     public void onCompleted() {
+                        Log.d("LoadingButton","onCompleted");
                         Toast.makeText(getApplicationContext(), "onCompleted", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onLoadingStart() {
+                        Log.d("LoadingButton","onLoadingStart");
                         loadingBtn.setText(loadingText);
                     }
 
                     @Override
+                    public void onLoadingStop() {
+                        Log.d("LoadingButton","onLoadingStop");
+                    }
+
+                    @Override
                     public void onEndDrawableAppear(boolean isSuccess, LoadingButton.EndDrawable endDrawable) {
+                        Log.d("LoadingButton","onEndDrawableAppear");
                         if (isSuccess) {
                             loadingBtn.setText(completeText);
                         } else {
@@ -487,7 +498,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void showEditDialog(String title, DialogInterface.OnClickListener onConfirmClickListener) {
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_text, null);
+        @SuppressLint("InflateParams") View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_text, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final EditText editText = view.findViewById(R.id.et);
         editText.addTextChangedListener(new TextWatcher() {

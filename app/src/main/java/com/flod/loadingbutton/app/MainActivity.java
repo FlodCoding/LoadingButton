@@ -39,7 +39,7 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.flod.loadingbutton.DrawableTextView;
+import com.flod.drawabletextview.DrawableTextView;
 import com.flod.loadingbutton.LoadingButton;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;

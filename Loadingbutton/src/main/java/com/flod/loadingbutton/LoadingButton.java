@@ -217,7 +217,7 @@ public class LoadingButton extends DrawableTextView {
     /**
      * 开始收缩或恢复
      *
-     * @param isReverse true：恢复 ，false：收缩
+     * @param isReverse true：恢复，且开始时停止Loading false：收缩，且结束时开始Loading
      * @param lastFrame 是否只显示最后一帧
      */
     private void beginChangeSize(boolean isReverse, boolean lastFrame) {
@@ -355,6 +355,7 @@ public class LoadingButton extends DrawableTextView {
                 if (enableShrink) {
                     beginChangeSize(true, !withAnim);
                 } else {
+                    stopLoading();
                     toIde();
                 }
                 break;
@@ -730,7 +731,6 @@ public class LoadingButton extends DrawableTextView {
         }
 
         private void init() {
-            setLayerType(LAYER_TYPE_HARDWARE, null);
             mPaint = new Paint(Paint.ANTI_ALIAS_FLAG | Paint.FILTER_BITMAP_FLAG);
             mCirclePath = new Path();
             mAppearAnimator = ObjectAnimator.ofFloat(this, "animValue", 1.0f);

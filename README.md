@@ -23,10 +23,10 @@
  
  	dependencies {
 		//Androidx
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.4'
+		implementation 'com.github.FlodCoding:LoadingButton:1.0.5'
 		
 		//Support-appcompat
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.4-support'
+		implementation 'com.github.FlodCoding:LoadingButton:1.0.5-support'
      	}
   
  

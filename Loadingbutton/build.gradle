@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 104
-        versionName "1.0.4"
+        versionCode 105
+        versionName "1.0.5"
     }
 
     buildTypes {
@@ -24,7 +24,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     compileOnly 'androidx.appcompat:appcompat:1.1.0'
-    api 'com.github.FlodCoding:DrawableTextView:1.0.2'
+    api 'com.github.FlodCoding:DrawableTextView:1.0.3'
 
 
 

@@ -4,7 +4,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.flod.loadingbutton.app"
-        minSdkVersion 19
+        minSdkVersion 17
         targetSdkVersion 28
         versionCode 100
         versionName "1.0.0"

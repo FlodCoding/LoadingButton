@@ -36,7 +36,7 @@
 ![](/screenrecord/APK_qrcode.png)
 
 ### Demo截图
-![](/screenrecord/shrink.gif) &ensp;&ensp; ![](/screenrecord/noshrink.gif)
+![](https://upload-images.jianshu.io/upload_images/7565394-3ae40e74968373b6.gif?imageMogr2/auto-orient/strip|imageView2/2/w/300/format/webp) &ensp;&ensp; ![](https://upload-images.jianshu.io/upload_images/7565394-70294e35ea498122.gif?imageMogr2/auto-orient/strip|imageView2/2/w/300/format/webp)
 
 ## 基本用法
 

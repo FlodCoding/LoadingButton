@@ -10,24 +10,29 @@
 ## 如何导入
 
 根目录下的build.gradle
-
+```
 	allprojects {
 		  repositories {
 		  	...
 		  maven { url 'https://jitpack.io' }
 		  }
 	}
- 
- 
- App目录下的build.gradle 
- 
+```
+
+App目录下的build.gradle 
+#### 注意！从1.1.0开始与以前的版本有较大的变动,请谨慎升级
+``` 
  	dependencies {
 		//Androidx
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.5'
+		implementation 'com.github.FlodCoding:LoadingButton:1.1.0-alpha01'
 		
-		//Support-appcompat
-		implementation 'com.github.FlodCoding:LoadingButton:1.0.5-support'
-     	}
+	}
+```
+Support-appcompat 停止更新  
+~~implementation 'com.github.FlodCoding:LoadingButton:1.0.5-support'~~
+
+
+
   
  
 ## Demo
@@ -36,88 +41,130 @@
 ![](/screenrecord/APK_qrcode.png)
 
 ### Demo截图
-![](https://upload-images.jianshu.io/upload_images/7565394-3ae40e74968373b6.gif?imageMogr2/auto-orient/strip|imageView2/2/w/300/format/webp) &ensp;&ensp; ![](https://upload-images.jianshu.io/upload_images/7565394-70294e35ea498122.gif?imageMogr2/auto-orient/strip|imageView2/2/w/300/format/webp)
+ ![](/screenrecord/1.gif) ![](/screenrecord/2.gif) <br>  ![](/screenrecord/3.gif) ![](/screenrecord/4.gif)
 
 ## 基本用法
 
 ### XML
 ```
-<com.flod.loadingbutton.LoadingButton
+ <com.flod.loadingbutton.LoadingButton
+            android:id="@+id/loadingBtn"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/selector_btn"
+            android:layout_height="50dp"
+            android:layout_gravity="top|center_horizontal"
+            android:layout_marginTop="10dp"
+            android:background="@android:color/holo_red_light"
             android:drawablePadding="10dp"
             android:gravity="center"
+            android:minHeight="45dp"
             android:padding="8dp"
             android:text="Submit"
-            app:endCompleteDrawable="@drawable/ic_successful"
-            app:endFailDrawable="@drawable/ic_fail" />
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            app:endSuccessDrawable="@drawable/ic_successful"
+            app:endFailDrawable="@drawable/ic_fail"
+            app:radius="50dp"
+            app:enableShrink="true"
+            app:shrinkShape="Oval"
+            app:loadingDrawablePosition="Start" />
 ```
 ### Code
 ```
 
-loadingBtn.start();     //开始加载
-loadingBtn.complete();  //加载成功
-loadingBtn.fail();      //加载失败
-loadingBtn.cancel();    //加载取消
+loadingBtn.start();              //开始加载
+loadingBtn.complete(true);       //加载成功
+loadingBtn.complete(false);      //加载失败
+loadingBtn.cancel();             //加载取消
 
 loadingBtn.setEnableShrink(true)
-                .setDisableClickOnLoading(true)
-                .setShrinkDuration(450)
-                .setRestoreTextWhenEnd(true)
-                .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
-                .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))
-                .setLoadingPosition(DrawableTextView.POSITION.START)
-                .setCompleteDrawable(R.drawable.ic_successful)
-                .setFailDrawable(R.drawable.ic_fail)
-                .setEndDrawableKeepDuration(900)
-                .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2))
-                .setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
-                    @Override
-                    public void onCanceled() {
-                        Toast.makeText(getApplicationContext(), "onCanceled", Toast.LENGTH_SHORT).show();
-                    }
+            .setDisableClickOnLoading(true)
+            .setShrinkDuration(450)
+            .setRestoreTextWhenEnd(true)
+            .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
+            .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))
+            .setLoadingPosition(DrawableTextView.POSITION.START)
+            .setCompleteDrawable(R.drawable.ic_successful)
+            .setFailDrawable(R.drawable.ic_fail)
+            .setEndDrawableKeepDuration(900)
+            .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2))
+           
+```
 
-                    @Override
-                    public void onFailed() {   
-                        Toast.makeText(getApplicationContext(), "onFailed", Toast.LENGTH_SHORT).show();
-                    }
+### 状态回调
 
-                    @Override
-                    public void onCompleted() {
-                        Toast.makeText(getApplicationContext(), "onCompleted", Toast.LENGTH_SHORT).show();
-                    }
+```
+graph LR
+start --> onShrinking
+onShrinking --> onLoadingStart
 
-                    @Override
-                    public void onLoadingStart() {
-                        loadingBtn.setText("Loading");
-                    }
+complete --> onLoadingStop
+onLoadingStop --> onEndDrawableAppear
+onEndDrawableAppear --> onCompleted
+onCompleted --> onRestored
+onRestored
 
-                    @Override
-                    public void onEndDrawableAppear(boolean isComplete, LoadingButton.EndDrawable endDrawable) {
-                        if (isComplete) {
-                            loadingBtn.setText("Complete);
-                        } else {
-                            loadingBtn.setText("Fail");
-                        }
-                    }
-                });
+```
+
+
+
+
+```
+    public static class OnStatusChangedListener {
+
+        public void onShrinking() {}
+
+        public void onLoadingStart() {}
+
+        public void onLoadingStop() {}
+
+        public void onEndDrawableAppear(boolean isSuccess, EndDrawable endDrawable) {}
+
+        public void onRestoring() {}
+
+        public void onRestored() {}
+        public void onCompleted(boolean isSuccess) { }
+
+        public void onCanceled() {}
+    }
 ```
 
 ## 属性说明
-属性名|类型|说明
----|:--:|---:
-enableShrink            |boolean  (default:true)                     |设置加载时收缩
-disableClickOnLoading   |boolean (default:true)                      |设置加载时禁用点击
-restoreTextWhenEnd      |boolean (default:true)                      |设置加载结束时恢复文字
-shrinkDuration          |integer (default:450ms)                     |收缩动画时间
-loadingEndDrawableSize  |dimension (default:TextSize \*2)            |设置LaodingDrawable和EndDrawable大小
-loadingDrawableColor    |color (default:TextColor)                   |设置Loading的颜色
-loadingDrawablePosition |enum：Start,Top,End,Bottom (default:Start)  |设置Loading的位置
-endCompleteDrawable     |reference                                   |完成时显示的图标
-endFailDrawable         |reference                                   |失败时显示的图标
-endDrawableAppearTime   |integer                                     |完成或失败图标从无到有的时间
-endDrawableDuration     |integer                                     |完成或失败图标停留的时间
+### XML
+属性名|类型|默认值|说明
+---|:--:|:---:|---:
+enableShrink            |boolean    |true                   |开始加载时收缩
+disableClickOnLoading   |boolean    |true                   |加载时禁用点击
+enableRestore           |boolean    |false                  |完成时，恢复按钮
+radius(SDK > 21         |dimension  |0dp                    |设置按钮的圆角,**(需要SDK>21)** <br>(来自([DrawableTextView](https://github.com/FlodCoding/DrawableTextView))
+shrinkDuration          |integer    |450ms                  |收缩动画时间
+shrinkShape             |enum<br>(Default,Oval)    |Oval   |收缩后的形状<br>(Default:保持原来的形状,Oval:圆形)
+loadingEndDrawableSize  |dimension  |TextSize \*2           |设置LaodingDrawable和EndDrawable大小
+loadingDrawableColor    |reference  |TextColor              |设置Loading的颜色
+loadingDrawablePosition |enum<br>(Start,Top,<br>End,Bottom) |Start  |设置Loading的位置
+endCompleteDrawable     |reference   | null                 |完成时显示的图标
+endFailDrawable         |reference   | null                 |失败时显示的图标
+endDrawableAppearTime   |integer     | 300ms                |完成或失败图标从无到有的时间
+endDrawableDuration     |integer     | 900ms                |完成或失败图标停留的时间
+
+### Public Func
+方法名|参数说明|默认值|说明
+---|:--:|:---:|---:
+start()                             |-                  |-      |开始加载
+complete(boolean isSuccess)         |是否成功           |-      |完成加载
+cancel(boolean withRestoreAnim)     |是否执行恢复动画   |false  |取消
+setEnableShrink(boolean enable)     |-                  |true   |设置加载时按钮收缩
+setEnableRestore(boolean enable)    |-                  |false  |设置完成时按钮恢复（形状和文字）
+setRadius(@Px int px)<br>setRadiusDP(int dp) |Px/Dp    |0    |设置按钮的圆角,**(需要SDK>21)**<br>(来自([DrawableTextView](https://github.com/FlodCoding/DrawableTextView))
+setShrinkShape(@ShrinkShape int shrinkShape) |Default:保持原来的形状,<br>Oval:圆形 |Oval  |收缩后的形状
+setShrinkDuration(long time) |milliseconds      |450ms  |收缩动画时间
+setLoadingEndDrawableSize(@Px int px)  |单位Px  |TextSize \*2   |设置LaodingDrawable和EndDrawable大小
+setLoadingPosition(@POSITION int position) |Start,Top,End,Bottom |Start  |设置Loading的位置
+setCompleteDrawable(@DrawableRes int drawableRes)<br>setCompleteDrawable(Drawable drawable) |-   | null |完成时显示的图标
+setFailDrawable(@DrawableRes int drawableRes)<br>setFailDrawable(Drawable drawable)         |-   | null |失败时显示的图标
+setEndDrawableAppearDuration(long time)   |milliseconds     | 300ms                |完成或失败图标从无到有的时间
+setEndDrawableKeepDuration(long time)     |milliseconds     | 900ms                |完成或失败图标停留的时间
+setOnStatusChangedListener<br>(OnStatusChangedListener listener)|-|null|按钮的各种状态回调
+
 
 ## Demo使用的第三方库
 

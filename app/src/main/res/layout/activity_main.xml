@@ -16,13 +16,15 @@
         <com.flod.loadingbutton.LoadingButton
             android:id="@+id/loadingBtn"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_gravity="top|center_horizontal"
             android:layout_marginTop="10dp"
             android:background="@drawable/selector_btn"
             android:drawablePadding="10dp"
             android:gravity="center"
             android:minHeight="45dp"
+            app:radius="10dp"
+            app:shrinkShape="Oval"
             android:padding="8dp"
             android:text="Submit"
             android:textColor="@android:color/white"
@@ -71,55 +73,211 @@
             android:text="Enable Shrink" />
 
         <Switch
+            android:id="@+id/swEnableRestore"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:checked="true"
+            android:text="Enable Restore" />
+
+
+        <Switch
             android:id="@+id/swDisableOnLoading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:checked="true"
-            android:text="Disable OnLoading" />
+            android:text="Disable Click OnLoading" />
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="Shrink Duration" />
+                android:text="Radius" />
 
             <TextView
-                android:id="@+id/tvShrinkDuration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="500ms" />
-        </RelativeLayout>
+                android:layout_marginStart="3dp"
+                android:text="(Require SDK_INT > 21)"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
 
-        <RelativeLayout
+            <TextView
+                android:id="@+id/tvRadiusValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="3dp"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="0"
+                android:textColor="@color/colorAccent" />
+
+
+            <SeekBar
+                android:id="@+id/sbRadius"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:layoutDirection="rtl" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:orientation="horizontal">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="LoadingDrawableColor" />
+                android:paddingVertical="10dp"
+                android:text="ShrinkShape" />
 
             <TextView
-                android:id="@+id/tvLoadingDrawableColor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="TextColor" />
-        </RelativeLayout>
+                android:layout_marginStart="3dp"
+                android:text="(Require SDK_INT > 21)"
+                android:textSize="10sp"
+                tools:ignore="SmallSp" />
+
+            <RadioGroup
+                android:id="@+id/rgShrinkShape"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="end|center_vertical"
+                android:orientation="horizontal">
+
+                <RadioButton
+                    android:id="@+id/rdDefault"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Default" />
+
+                <RadioButton
+                    android:id="@+id/rdOval"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="Oval" />
+            </RadioGroup>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Shrink Duration: " />
+
+            <TextView
+                android:id="@+id/tvShrinkDurationValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:text="500"
+                android:textColor="@color/colorAccent" />
+
+
+            <SeekBar
+                android:id="@+id/sbShrinkDuration"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:layoutDirection="rtl" />
+
+        </LinearLayout>
+
+
+        <!--  <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerVertical="true"
+                  android:text="Shrink Duration" />
+
+
+              <TextView
+                  android:id="@+id/tvShrinkDuration"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentEnd="true"
+                  android:background="@drawable/shape_btn"
+                  android:padding="6dp"
+                  android:text="500ms" />
+          </RelativeLayout>-->
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LoadingDrawableColor: " />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="1dp"
+                android:layout_weight="1"
+                android:textColor="@color/colorAccent" />
+
+            <TextView
+                android:id="@+id/tvLoadingDrawableColorValue"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:gravity="center"
+                android:text="#ffffff"
+                android:textColor="@android:color/black" />
+
+
+            <SeekBar
+                android:id="@+id/sbLoadingDrawableColor"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:layoutDirection="rtl" />
+
+        </LinearLayout>
+
+        <!--   <RelativeLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_marginTop="10dp">
+
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_centerVertical="true"
+                   android:text="LoadingDrawableColor" />
+
+               <TextView
+                   android:id="@+id/tvLoadingDrawableColor"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignParentEnd="true"
+                   android:layout_centerVertical="true"
+                   android:background="@drawable/shape_btn"
+                   android:padding="6dp"
+                   android:text="TextColor" />
+           </RelativeLayout>-->
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -143,50 +301,113 @@
                 android:text="START" />
         </RelativeLayout>
 
-        <RelativeLayout
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="LoadingStrokeWidth" />
+                android:text="LoadingStrokeWidth: " />
 
             <TextView
-                android:id="@+id/tvLoadingStrokeWidth"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvLoadingStrokeWidthValue"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="TextSize * 0.14" />
-        </RelativeLayout>
+                android:layout_weight="1"
+                android:text="13"
+                android:gravity="end"
+                android:textColor="@color/colorAccent" />
 
 
-        <RelativeLayout
+            <SeekBar
+                android:id="@+id/sbLoadingStrokeWidth"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:layoutDirection="rtl" />
+
+        </LinearLayout>
+
+
+        <!--      <RelativeLayout
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_marginTop="10dp">
+
+                  <TextView
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_centerVertical="true"
+                      android:text="LoadingStrokeWidth" />
+
+                  <TextView
+                      android:id="@+id/tvLoadingStrokeWidth"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_alignParentEnd="true"
+                      android:layout_centerVertical="true"
+                      android:background="@drawable/shape_btn"
+                      android:padding="6dp"
+                      android:text="TextSize * 0.14" />
+              </RelativeLayout>-->
+
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="Loading&#038;EndDrawableSize" />
+                android:text="Loading&#038;EndDrawableSize: " />
 
             <TextView
-                android:id="@+id/tvLoadingEndDrawableSize"
-                android:layout_width="wrap_content"
+                android:id="@+id/tvLoadingEndDrawableSizeValue"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="TextSize * 2" />
-        </RelativeLayout>
+                android:layout_weight="1"
+                android:text="98"
+                android:gravity="end"
+                android:textColor="@color/colorAccent" />
+
+
+            <SeekBar
+                android:id="@+id/sbLoadingEndDrawableSizeValue"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:layoutDirection="rtl" />
+
+        </LinearLayout>
+
+
+        <!--  <RelativeLayout
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginTop="10dp">
+
+              <TextView
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_centerVertical="true"
+                  android:text="Loading&#038;EndDrawableSize" />
+
+              <TextView
+                  android:id="@+id/tvLoadingEndDrawableSize"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentEnd="true"
+                  android:layout_centerVertical="true"
+                  android:background="@drawable/shape_btn"
+                  android:padding="6dp"
+                  android:text="TextSize * 2" />
+          </RelativeLayout>-->
 
         <RelativeLayout
             android:id="@+id/layEndCompleteDrawableIcon"
@@ -232,6 +453,60 @@
                 android:src="@drawable/ic_fail" />
         </RelativeLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingVertical="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EndDrawableDuration: " />
+
+            <TextView
+                android:id="@+id/tvEndDrawableDurationValue"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="1500"
+                android:gravity="end"
+                android:textColor="@color/colorAccent" />
+
+
+            <SeekBar
+                android:id="@+id/sbEndDrawableDuration"
+                android:layout_width="100dp"
+                android:layout_height="20dp"
+                android:layoutDirection="rtl" />
+
+        </LinearLayout>
+
+
+        <!--   <RelativeLayout
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:layout_marginTop="10dp">
+
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_centerVertical="true"
+                   android:text="EndDrawableDuration" />
+
+               <TextView
+                   android:id="@+id/tvEndDrawableDuration"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_alignParentEnd="true"
+                   android:layout_centerVertical="true"
+                   android:background="@drawable/shape_btn"
+                   android:padding="6dp"
+                   android:text="1500ms" />
+           </RelativeLayout>
+   -->
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -241,30 +516,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="EndDrawableDuration" />
-
-            <TextView
-                android:id="@+id/tvEndDrawableDuration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:background="@drawable/shape_btn"
-                android:padding="6dp"
-                android:text="1500ms" />
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:text="LoadingText" />
+                android:text="OnLoadingText" />
 
             <TextView
                 android:id="@+id/tvLoadingText"
@@ -287,7 +539,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="LoadingCompleteText" />
+                android:text="OnSuccessText" />
 
             <TextView
                 android:id="@+id/tvCompleteText"
@@ -309,7 +561,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="LoadingCompleteText" />
+                android:text="onFailText" />
 
             <TextView
                 android:id="@+id/tvFailText"

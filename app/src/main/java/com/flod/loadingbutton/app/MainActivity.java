@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -60,22 +61,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btFail;
     private Button btComplete;
 
-    private Switch swEnableShrink, swDisableClickOnLoading;
-    private TextView tvShrinkDuration;
-    private TextView tvLoadingDrawableColor;
     private TextView tvLoadingPosition;
     private ImageView imEndCompleteDrawableIcon;
     private ImageView imEndFailDrawableIcon;
-    private TextView tvEndDrawableDuration;
-    private TextView tvLoadingEndDrawableSize;
-    private TextView tvLoadingStrokeWidth;
+
     private TextView tvLoadingText;
     private TextView tvCompleteText;
     private TextView tvFailText;
 
 
     private int itemIndexSelected;
-    private int seekBarProgress;
     private String editTextString;
 
 
@@ -97,73 +92,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                        resetView();
+                        initView();
                         Toast.makeText(getApplicationContext(), "Reset", Toast.LENGTH_SHORT).show();
                         return false;
                     }
                 })
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+                .setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         return super.onCreateOptionsMenu(menu);
 
     }
 
     private void initView() {
         loadingBtn = findViewById(R.id.loadingBtn);
-        swEnableShrink = findViewById(R.id.swEnableShrink);
-        swDisableClickOnLoading = findViewById(R.id.swDisableOnLoading);
-
-        tvShrinkDuration = findViewById(R.id.tvShrinkDuration);
-        tvLoadingDrawableColor = findViewById(R.id.tvLoadingDrawableColor);
-        tvLoadingPosition = findViewById(R.id.tvLoadingPosition);
-        imEndCompleteDrawableIcon = findViewById(R.id.imEndCompleteDrawableIcon);
-        imEndFailDrawableIcon = findViewById(R.id.imEndFailDrawableIcon);
-        tvEndDrawableDuration = findViewById(R.id.tvEndDrawableDuration);
-        tvLoadingEndDrawableSize = findViewById(R.id.tvLoadingEndDrawableSize);
-        tvLoadingStrokeWidth = findViewById(R.id.tvLoadingStrokeWidth);
-        tvLoadingText = findViewById(R.id.tvLoadingText);
-        tvCompleteText = findViewById(R.id.tvCompleteText);
-        tvFailText = findViewById(R.id.tvFailText);
-        btCancel = findViewById(R.id.btCancel);
-        btFail = findViewById(R.id.btFail);
-        btComplete = findViewById(R.id.btComplete);
-
-        swEnableShrink.setOnClickListener(this);
-        tvShrinkDuration.setOnClickListener(this);
-        tvLoadingDrawableColor.setOnClickListener(this);
-        tvLoadingPosition.setOnClickListener(this);
-        findViewById(R.id.layEndCompleteDrawableIcon).setOnClickListener(this);
-        findViewById(R.id.layEndFailDrawableIcon).setOnClickListener(this);
-        tvEndDrawableDuration.setOnClickListener(this);
-        tvLoadingEndDrawableSize.setOnClickListener(this);
-        tvLoadingStrokeWidth.setOnClickListener(this);
-        tvLoadingText.setOnClickListener(this);
-        tvCompleteText.setOnClickListener(this);
-        tvFailText.setOnClickListener(this);
-        btCancel.setOnClickListener(this);
-        btFail.setOnClickListener(this);
-        btComplete.setOnClickListener(this);
 
         initLoadingButton();
+
+        Switch swEnableShrink = findViewById(R.id.swEnableShrink);
+        Switch swEnableRestore = findViewById(R.id.swEnableRestore);
+        Switch swDisableClickOnLoading = findViewById(R.id.swDisableOnLoading);
+        final TextView tvRadiusValue = findViewById(R.id.tvRadiusValue);
+        SeekBar sbRadius = findViewById(R.id.sbRadius);
+        RadioGroup rgShrinkShape = findViewById(R.id.rgShrinkShape);
+        final TextView tvLoadingDrawableColorValue = findViewById(R.id.tvLoadingDrawableColorValue);
+        SeekBar sbLoadingDrawableColor = findViewById(R.id.sbLoadingDrawableColor);
+        final TextView tvLoadingStrokeWidthValue = findViewById(R.id.tvLoadingStrokeWidthValue);
+        final TextView tvShrinkDurationValue = findViewById(R.id.tvShrinkDurationValue);
+        SeekBar sbShrinkDuration = findViewById(R.id.sbShrinkDuration);
+        SeekBar sbLoadingStrokeWidth = findViewById(R.id.sbLoadingStrokeWidth);
+        tvLoadingStrokeWidthValue.setText(loadingBtn.getLoadingDrawable().getStrokeWidth() + "");
+        final TextView tvLoadingEndDrawableSizeValue = findViewById(R.id.tvLoadingEndDrawableSizeValue);
+        SeekBar sbLoadingEndDrawableSizeValue = findViewById(R.id.sbLoadingEndDrawableSizeValue);
+        final TextView tvEndDrawableDurationValue = findViewById(R.id.tvEndDrawableDurationValue);
+        SeekBar sbEndDrawableDuration = findViewById(R.id.sbEndDrawableDuration);
 
         swEnableShrink.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 loadingBtn.cancel();
                 loadingBtn.setEnableShrink(isChecked);
-                tvLoadingStrokeWidth.setText("LoadingSize * 0.14");
+                int defaultStrokeWidth = (int) (loadingBtn.getTextSize() * 0.14f);
+                tvLoadingStrokeWidthValue.setText(defaultStrokeWidth + "");
                 if (isChecked) {
                     int loadingSize = (int) loadingBtn.getTextSize() * 2;
                     loadingBtn.setLoadingEndDrawableSize(loadingSize);
-                    loadingBtn.getLoadingDrawable().setStrokeWidth(loadingSize * 0.14f);
-                    tvLoadingEndDrawableSize.setText("TextSize * 2");
+                    loadingBtn.getLoadingDrawable().setStrokeWidth(defaultStrokeWidth);
+                    tvLoadingEndDrawableSizeValue.setText(loadingSize + "");
 
 
                 } else {
                     int loadingSize = (int) loadingBtn.getTextSize();
                     loadingBtn.setLoadingEndDrawableSize(loadingSize);
                     loadingBtn.getLoadingDrawable().setStrokeWidth(loadingSize * 0.14f);
-                    tvLoadingEndDrawableSize.setText("TextSize");
+                    tvLoadingEndDrawableSizeValue.setText(loadingSize + "");
                 }
+            }
+        });
+
+        swEnableRestore.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                loadingBtn.cancel();
+                loadingBtn.setEnableRestore(isChecked);
             }
         });
 
@@ -174,69 +163,153 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-    }
 
-    private void resetView() {
-        loadingText = "Loading";
-        completeText = "Success";
-        failText = "Fail";
-        swEnableShrink.setChecked(true);
-        swDisableClickOnLoading.setChecked(true);
-        tvShrinkDuration.setText("500ms");
-        tvLoadingDrawableColor.setText("TextColor");
-        tvLoadingDrawableColor.setBackground(null);
-        tvLoadingPosition.setText("START");
+        tvRadiusValue.setText(35 + "");
+        sbRadius.setMax(100);
+        sbRadius.setProgress(35);
+        sbRadius.setOnSeekBarChangeListener(new EmptyOnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    loadingBtn.setRadius(progress);
+                }
+                tvRadiusValue.setText(String.valueOf(progress));
+            }
+        });
+
+
+        rgShrinkShape.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    if (checkedId == R.id.rdDefault) {
+                        loadingBtn.setShrinkShape(LoadingButton.ShrinkShape.DEFAULT);
+
+                    } else if (checkedId == R.id.rdOval) {
+                        loadingBtn.setShrinkShape(LoadingButton.ShrinkShape.OVAL);
+                    }
+                }
+            }
+        });
+
+
+        tvShrinkDurationValue.setText(String.valueOf(500));
+        sbShrinkDuration.setMax(3000);
+        sbShrinkDuration.setProgress(500);
+        sbShrinkDuration.setOnSeekBarChangeListener(new EmptyOnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                loadingBtn.setShrinkDuration(progress);
+                tvShrinkDurationValue.setText(String.valueOf(progress));
+            }
+        });
+
+
+        int loadingDrawableColorValue = loadingBtn.getLoadingDrawable().getColorSchemeColors()[0];
+        tvLoadingDrawableColorValue.setText(Integer.toHexString(loadingDrawableColorValue));
+        tvLoadingDrawableColorValue.setBackgroundColor(loadingDrawableColorValue);
+        sbLoadingDrawableColor.setMax(0xffffff);
+        sbLoadingDrawableColor.setProgress(loadingDrawableColorValue - 0xff000000);
+        sbLoadingDrawableColor.setOnSeekBarChangeListener(new EmptyOnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                loadingBtn.getLoadingDrawable().setColorSchemeColors(progress);
+                tvLoadingDrawableColorValue.setText(Integer.toHexString(progress + 0xff000000));
+                tvLoadingDrawableColorValue.setBackgroundColor(progress + 0xff000000);
+            }
+        });
+
+
+        sbLoadingStrokeWidth.setMax(30);
+        sbLoadingStrokeWidth.setProgress((int) loadingBtn.getLoadingDrawable().getStrokeWidth());
+        sbLoadingStrokeWidth.setOnSeekBarChangeListener(new EmptyOnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                loadingBtn.getLoadingDrawable().setStrokeWidth(progress);
+                tvLoadingStrokeWidthValue.setText(String.valueOf(progress));
+            }
+        });
+
+
+        tvLoadingEndDrawableSizeValue.setText(loadingBtn.getLoadingEndDrawableSize() + "");
+        sbLoadingEndDrawableSizeValue.setMax(250);
+        sbLoadingEndDrawableSizeValue.setProgress(loadingBtn.getLoadingEndDrawableSize());
+        sbLoadingEndDrawableSizeValue.setOnSeekBarChangeListener(new EmptyOnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                loadingBtn.setLoadingEndDrawableSize(progress);
+                tvLoadingEndDrawableSizeValue.setText(String.valueOf(progress));
+            }
+        });
+
+
+        tvEndDrawableDurationValue.setText(loadingBtn.getEndDrawableDuration() + "");
+        sbEndDrawableDuration.setMax(6500);
+        sbEndDrawableDuration.setProgress((int) loadingBtn.getEndDrawableDuration());
+        sbEndDrawableDuration.setOnSeekBarChangeListener(new EmptyOnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                loadingBtn.setEndDrawableKeepDuration(progress);
+                tvEndDrawableDurationValue.setText(String.valueOf(progress));
+            }
+        });
+
+
+        tvLoadingPosition = findViewById(R.id.tvLoadingPosition);
+        imEndCompleteDrawableIcon = findViewById(R.id.imEndCompleteDrawableIcon);
+        imEndFailDrawableIcon = findViewById(R.id.imEndFailDrawableIcon);
+        tvLoadingText = findViewById(R.id.tvLoadingText);
+        tvCompleteText = findViewById(R.id.tvCompleteText);
+        tvFailText = findViewById(R.id.tvFailText);
+        btCancel = findViewById(R.id.btCancel);
+        btFail = findViewById(R.id.btFail);
+        btComplete = findViewById(R.id.btComplete);
+
+        tvLoadingPosition.setOnClickListener(this);
+        findViewById(R.id.layEndCompleteDrawableIcon).setOnClickListener(this);
+        findViewById(R.id.layEndFailDrawableIcon).setOnClickListener(this);
+
+        tvLoadingText.setOnClickListener(this);
+        tvCompleteText.setOnClickListener(this);
+        tvFailText.setOnClickListener(this);
+        btCancel.setOnClickListener(this);
+        btFail.setOnClickListener(this);
+        btComplete.setOnClickListener(this);
+
+        tvLoadingText.setText("Loading");
+        tvCompleteText.setText("Success");
+        tvFailText.setText("Fail");
         imEndCompleteDrawableIcon.setImageResource(R.drawable.ic_successful);
         imEndFailDrawableIcon.setImageResource(R.drawable.ic_fail);
-        tvEndDrawableDuration.setText("1500ms");
-        tvLoadingEndDrawableSize.setText("TextSize * 2");
-        tvLoadingStrokeWidth.setText("TextSize * 0.12");
-        tvLoadingText.setText(loadingText);
-        tvCompleteText.setText(completeText);
-        tvFailText.setText(failText);
 
-
-        initLoadingButton();
     }
 
+
     private void initLoadingButton() {
+
         loadingBtn.setOnClickListener(this);
         loadingBtn.cancel();
         loadingBtn.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
+        loadingBtn.getLoadingDrawable().setStrokeWidth(loadingBtn.getTextSize() * 0.14f);
         loadingBtn.setEnableShrink(true)
                 .setDisableClickOnLoading(true)
                 .setShrinkDuration(450)
-                .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
-                .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))
                 .setLoadingPosition(DrawableTextView.POSITION.START)
-                .setCompleteDrawable(R.drawable.ic_successful)
+                .setSuccessDrawable(R.drawable.ic_successful)
                 .setFailDrawable(R.drawable.ic_fail)
                 .setEndDrawableKeepDuration(900)
+                .setEnableRestore(true)
                 .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2))
-                .setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
-                    @Override
-                    public void onCanceled() {
-                        Log.d("LoadingButton","onCanceled");
-                        Toast.makeText(getApplicationContext(), "onCanceled", Toast.LENGTH_SHORT).show();
-                    }
+                .setOnStatusChangedListener(new LoadingButton.OnStatusChangedListener() {
 
                     @Override
-                    public void onFailed() {
-                        Log.d("LoadingButton","onFailed");
-                        Toast.makeText(getApplicationContext(), "onFailed", Toast.LENGTH_SHORT).show();
-
-                        loadingBtn.setText("Submit");
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        Log.d("LoadingButton","onCompleted");
-                        Toast.makeText(getApplicationContext(), "onCompleted", Toast.LENGTH_SHORT).show();
+                    public void onShrinking() {
+                        Log.d("LoadingButton", "onShrinking");
                     }
 
                     @Override
                     public void onLoadingStart() {
-                        Log.d("LoadingButton","onLoadingStart");
+                        Log.d("LoadingButton", "onLoadingStart");
                         loadingBtn.setText(loadingText);
                     }
 
@@ -247,12 +320,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onEndDrawableAppear(boolean isSuccess, LoadingButton.EndDrawable endDrawable) {
-                        Log.d("LoadingButton","onEndDrawableAppear");
+                        Log.d("LoadingButton", "onEndDrawableAppear");
                         if (isSuccess) {
                             loadingBtn.setText(completeText);
                         } else {
                             loadingBtn.setText(failText);
                         }
+                    }
+
+
+                    @Override
+                    public void onCompleted(boolean isSuccess) {
+                        Log.d("LoadingButton", "onCompleted isSuccess: " + isSuccess);
+                        Toast.makeText(getApplicationContext(), isSuccess ? "Success" : "Fail", Toast.LENGTH_SHORT).show();
+
+                    }
+
+
+                    @Override
+                    public void onRestored() {
+                        Log.d("LoadingButton", "onRestored");
+
+                    }
+
+                    @Override
+                    public void onCanceled() {
+                        Log.d("LoadingButton", "onCanceled");
+                        Toast.makeText(getApplicationContext(), "onCanceled", Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -260,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     @Override
-    public void onClick(View v) {
+    public void onClick(final View v) {
         int id = v.getId();
         switch (id) {
             case R.id.loadingBtn:
@@ -271,11 +365,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return;
             }
             case R.id.btFail: {
-                loadingBtn.fail();
+                loadingBtn.complete(false);
                 return;
             }
             case R.id.btComplete: {
-                loadingBtn.complete();
+                loadingBtn.complete(true);
                 return;
             }
         }
@@ -283,32 +377,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         loadingBtn.cancel();
         switch (id) {
-            case R.id.tvShrinkDuration: {
-                showSeekBarDialog("SetShrinkDuration", 3000, loadingBtn.getShrinkDuration(), false,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                tvShrinkDuration.setText(seekBarProgress + "ms");
-                                loadingBtn.setShrinkDuration(seekBarProgress);
-                                seekBarProgress = 0;
-                            }
-                        });
-                break;
-            }
-            case R.id.tvLoadingDrawableColor: {
-                showSeekBarDialog("SetLoadingDrawableColor", 0xffffff, loadingBtn.getLoadingDrawable().getColorSchemeColors()[0] - 0xff000000, true,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                tvLoadingDrawableColor.setText("\t\t\t\t");
-                                int color = 0xff000000 + seekBarProgress;
-                                tvLoadingDrawableColor.setBackgroundColor(color);
-                                loadingBtn.getLoadingDrawable().setColorSchemeColors(color);
-                                seekBarProgress = 0;
-                            }
-                        });
-                break;
-            }
+
             case R.id.tvLoadingPosition: {
                 final List<String> items = Arrays.asList("START", "TOP", "END", "BOTTOM");
                 final int curIndex = items.indexOf(tvLoadingPosition.getText().toString());
@@ -333,6 +402,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .choose(MimeType.ofImage())
                             .countable(false)
                             .capture(true)
+                            .theme(R.style.Matisse_Dracula)
                             .captureStrategy(new CaptureStrategy(true, "com.flod.hardloadingbutton.provider"))
                             .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
                             .thumbnailScale(0.5f)
@@ -346,6 +416,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                     Matisse.from(MainActivity.this)
                             .choose(MimeType.ofImage())
+                            .theme(R.style.Matisse_Dracula)
                             .countable(false)
                             .capture(true)
                             .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
@@ -353,48 +424,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .imageEngine(new Glide4Engine())
                             .forResult(RQ_GET_PHOTO_FAIL);
                 }
-                break;
-            }
-            case R.id.tvEndDrawableDuration: {
-                if (loadingBtn.getEndDrawableAnimator() != null) {
-                    showSeekBarDialog("SetEndDrawableAppearTime", 6500, (int) loadingBtn.getEndDrawableDuration(), false,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    tvEndDrawableDuration.setText(seekBarProgress + "ms");
-                                    loadingBtn.setEndDrawableKeepDuration(seekBarProgress);
-                                    seekBarProgress = 0;
-                                }
-                            });
-                } else {
-                    Toast.makeText(this, "EndDrawable is null", Toast.LENGTH_LONG).show();
-                }
-                break;
-            }
-            case R.id.tvLoadingEndDrawableSize: {
-                showSeekBarDialog("SetLoadingEndDrawableSize", 250, loadingBtn.getLoadingEndDrawableSize(), false,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                tvLoadingEndDrawableSize.setText(seekBarProgress + "px");
-                                loadingBtn.setLoadingEndDrawableSize(seekBarProgress);
-                                seekBarProgress = 0;
-                            }
-                        });
-
-                break;
-
-            }
-            case R.id.tvLoadingStrokeWidth: {
-                showSeekBarDialog("SetLoadingStrokeWidth", 30, (int) loadingBtn.getLoadingDrawable().getStrokeWidth(), false,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                tvLoadingStrokeWidth.setText(seekBarProgress + "px");
-                                loadingBtn.getLoadingDrawable().setStrokeWidth(seekBarProgress);
-                                seekBarProgress = 0;
-                            }
-                        });
                 break;
             }
             case R.id.tvLoadingText: {
@@ -447,56 +476,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         builder.create().show();
     }
 
-    private void showSeekBarDialog(String title, int max, final int value, final boolean setColor, DialogInterface.OnClickListener onConfirmClickListener) {
-        @SuppressLint("InflateParams")
-        View view = LayoutInflater.from(this).inflate(R.layout.dialog_seek_bar, null);
-        final TextView tvValue = view.findViewById(R.id.tvValue);
-        final SeekBar seekBar = view.findViewById(R.id.seek_bar);
-        seekBar.setMax(max);
-
-        if (setColor) {
-            tvValue.setBackgroundColor(value + 0xff000000);
-            tvValue.setText(Integer.toHexString(value));
-            seekBar.setProgress(value);
-
-        } else {
-            seekBar.setProgress(value);
-            tvValue.setText(value + "");
-        }
-
-        seekBarProgress = value;
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (setColor) {
-                    tvValue.setText(Integer.toHexString(progress));
-                    tvValue.setBackgroundColor(progress + 0xff000000);
-                } else {
-                    tvValue.setText(progress + "");
-                }
-
-                seekBarProgress = progress;
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setView(view)
-                .setTitle(title)
-                .setNegativeButton("Confirm", onConfirmClickListener)
-                .create().show();
-
-    }
-
-
     private void showEditDialog(String title, DialogInterface.OnClickListener onConfirmClickListener) {
         @SuppressLint("InflateParams") View view = LayoutInflater.from(this).inflate(R.layout.dialog_edit_text, null);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -544,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             @Override
                             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                                 if (requestCode == RQ_GET_PHOTO_COMPLETE)
-                                    loadingBtn.setCompleteDrawable(resource);
+                                    loadingBtn.setSuccessDrawable(resource);
                                 else
                                     loadingBtn.setFailDrawable(resource);
                                 return false;
@@ -579,6 +558,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (grantResults.length > 0) {
                 Toast.makeText(this, "Please allow Permissions", Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+
+    static class EmptyOnSeekBarChangeListener implements SeekBar.OnSeekBarChangeListener {
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+
         }
     }
 }

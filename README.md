@@ -6,6 +6,8 @@
    * 支持按钮收缩
    * 支持加载完成和失败图标显示
    * 可设置加载动画颜色、大小、位置
+   * 自定义圆角
+   
    
 ## 如何导入
 
@@ -65,6 +67,7 @@ Support-appcompat 停止更新
             app:endFailDrawable="@drawable/ic_fail"
             app:radius="50dp"
             app:enableShrink="true"
+	    app:enableRestore="true"
             app:shrinkShape="Oval"
             app:loadingDrawablePosition="Start" />
 ```
@@ -77,21 +80,21 @@ loadingBtn.complete(false);      //加载失败
 loadingBtn.cancel();             //加载取消
 
 loadingBtn.setEnableShrink(true)
-            .setDisableClickOnLoading(true)
-            .setShrinkDuration(450)
-            .setRestoreTextWhenEnd(true)
-            .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
-            .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))
-            .setLoadingPosition(DrawableTextView.POSITION.START)
-            .setCompleteDrawable(R.drawable.ic_successful)
-            .setFailDrawable(R.drawable.ic_fail)
-            .setEndDrawableKeepDuration(900)
-            .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2))
+	  .setEnableRestore(true)
+          .setDisableClickOnLoading(true)
+          .setShrinkDuration(450)
+          .setLoadingColor(loadingBtn.getTextColors().getDefaultColor())
+          .setLoadingStrokeWidth((int) (loadingBtn.getTextSize() * 0.14f))
+          .setLoadingPosition(DrawableTextView.POSITION.START)
+          .setSuccessDrawable(R.drawable.ic_successful)
+          .setFailDrawable(R.drawable.ic_fail)
+          .setEndDrawableKeepDuration(900)
+          .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2))
            
 ```
 
 ### 状态回调
-start --> onShrinking --> onLoadingStart
+start --> onShrinking --> onLoadingStart  
 complete --> onLoadingStop --> onEndDrawableAppear --> onCompleted --> onRestored
 
 ```
@@ -108,6 +111,7 @@ complete --> onLoadingStop --> onEndDrawableAppear --> onCompleted --> onRestore
         public void onRestoring() {}
 
         public void onRestored() {}
+	
         public void onCompleted(boolean isSuccess) { }
 
         public void onCanceled() {}
@@ -123,11 +127,11 @@ disableClickOnLoading   |boolean    |true                   |加载时禁用点�
 enableRestore           |boolean    |false                  |完成时，恢复按钮
 radius(SDK > 21         |dimension  |0dp                    |设置按钮的圆角,**(需要SDK>21)** <br>(来自([DrawableTextView](https://github.com/FlodCoding/DrawableTextView))
 shrinkDuration          |integer    |450ms                  |收缩动画时间
-shrinkShape             |enum<br>(Default,Oval)    |Oval   |收缩后的形状<br>(Default:保持原来的形状,Oval:圆形)
+shrinkShape             |enum<br>(Default,Oval)    |Oval   |收缩后的形状 **(需要SDK>21)** <br>(Default:保持原来的形状,Oval:圆形)
 loadingEndDrawableSize  |dimension  |TextSize \*2           |设置LaodingDrawable和EndDrawable大小
 loadingDrawableColor    |reference  |TextColor              |设置Loading的颜色
 loadingDrawablePosition |enum<br>(Start,Top,<br>End,Bottom) |Start  |设置Loading的位置
-endCompleteDrawable     |reference   | null                 |完成时显示的图标
+endSuccessDrawable      |reference   | null                 |完成时显示的图标
 endFailDrawable         |reference   | null                 |失败时显示的图标
 endDrawableAppearTime   |integer     | 300ms                |完成或失败图标从无到有的时间
 endDrawableDuration     |integer     | 900ms                |完成或失败图标停留的时间
@@ -145,7 +149,7 @@ setShrinkShape(@ShrinkShape int shrinkShape) |Default:保持原来的形状,<br>
 setShrinkDuration(long time) |milliseconds      |450ms  |收缩动画时间
 setLoadingEndDrawableSize(@Px int px)  |单位Px  |TextSize \*2   |设置LaodingDrawable和EndDrawable大小
 setLoadingPosition(@POSITION int position) |Start,Top,End,Bottom |Start  |设置Loading的位置
-setCompleteDrawable(@DrawableRes int drawableRes)<br>setCompleteDrawable(Drawable drawable) |-   | null |完成时显示的图标
+setSuccessDrawable(@DrawableRes int drawableRes)<br>setSuccessDrawable(Drawable drawable) |-   | null |成功时显示的图标
 setFailDrawable(@DrawableRes int drawableRes)<br>setFailDrawable(Drawable drawable)         |-   | null |失败时显示的图标
 setEndDrawableAppearDuration(long time)   |milliseconds     | 300ms                |完成或失败图标从无到有的时间
 setEndDrawableKeepDuration(long time)     |milliseconds     | 900ms                |完成或失败图标停留的时间

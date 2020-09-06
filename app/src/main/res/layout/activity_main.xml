@@ -28,7 +28,7 @@
             android:textColor="@android:color/white"
             android:textSize="14sp"
             app:endSuccessDrawable="@drawable/ic_successful"
-            app:radius="50dp"
+            app:radius="10dp"
             app:enableShrink="true"
             app:shrinkShape="Oval"
             app:endFailDrawable="@drawable/ic_fail"

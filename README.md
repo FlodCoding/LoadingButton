@@ -91,22 +91,8 @@ loadingBtn.setEnableShrink(true)
 ```
 
 ### 状态回调
-
-```
-graph LR
-start --> onShrinking
-onShrinking --> onLoadingStart
-
-complete --> onLoadingStop
-onLoadingStop --> onEndDrawableAppear
-onEndDrawableAppear --> onCompleted
-onCompleted --> onRestored
-onRestored
-
-```
-
-
-
+start --> onShrinking --> onLoadingStart
+complete --> onLoadingStop --> onEndDrawableAppear --> onCompleted --> onRestored
 
 ```
     public static class OnStatusChangedListener {

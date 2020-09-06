@@ -429,28 +429,36 @@ public class LoadingButton extends DrawableTextView {
      * @param isSuccess 是否加载成功，将参数传递给回调{@link OnLoadingListener#onCompleted(boolean)} ()},
      */
     public void complete(boolean isSuccess) {
-
+        stopLoading();
         if (mEndDrawable != null) {
             if (mShrinkAnimator.isRunning())
                 mShrinkAnimator.end();
-            stopLoading();
+
             mEndDrawable.show(isSuccess);
         } else {
             //No EndDrawable,enableShrink
             this.isFail = !isSuccess;
-            if (enableRestore) {
-                if (curStatus == STATUS.LOADING)
-                    beginShrink(true, false);
-                else
-                    beginShrink(true, true);
+            if (enableShrink) {
+                if (enableRestore)
+                    if (curStatus == STATUS.LOADING) {
+                        beginShrink(true, false);
+                    } else {
+                        beginShrink(true, true);
+                    }
 
+                else {
+                    if (mOnLoadingListener != null) {
+                        mOnLoadingListener.onCompleted(isSuccess);
+                    }
+                }
             } else {
                 //No EndDrawable,disableShrink
-                stopLoading();
                 if (mOnLoadingListener != null) {
                     mOnLoadingListener.onCompleted(isSuccess);
                 }
-                toIde();
+
+                if (enableRestore)
+                    toIde();
             }
 
 

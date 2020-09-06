@@ -282,11 +282,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         imEndCompleteDrawableIcon.setImageResource(R.drawable.ic_successful);
         imEndFailDrawableIcon.setImageResource(R.drawable.ic_fail);
 
-
     }
 
 
     private void initLoadingButton() {
+
         loadingBtn.setOnClickListener(this);
         loadingBtn.cancel();
         loadingBtn.getLayoutParams().height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -295,12 +295,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .setDisableClickOnLoading(true)
                 .setShrinkDuration(450)
                 .setLoadingPosition(DrawableTextView.POSITION.START)
-                .setCompleteDrawable(R.drawable.ic_successful)
+                .setSuccessDrawable(R.drawable.ic_successful)
                 .setFailDrawable(R.drawable.ic_fail)
                 .setEndDrawableKeepDuration(900)
                 .setEnableRestore(true)
                 .setLoadingEndDrawableSize((int) (loadingBtn.getTextSize() * 2))
-                .setOnLoadingListener(new LoadingButton.OnLoadingListenerAdapter() {
+                .setOnStatusChangedListener(new LoadingButton.OnStatusChangedListener() {
 
                     @Override
                     public void onShrinking() {
@@ -309,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onLoadingStart() {
-                        Log.d("LoadingButton","onLoadingStart");
+                        Log.d("LoadingButton", "onLoadingStart");
                         loadingBtn.setText(loadingText);
                     }
 
@@ -523,7 +523,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             @Override
                             public boolean onResourceReady(Drawable resource, Object model, Target<Drawable> target, DataSource dataSource, boolean isFirstResource) {
                                 if (requestCode == RQ_GET_PHOTO_COMPLETE)
-                                    loadingBtn.setCompleteDrawable(resource);
+                                    loadingBtn.setSuccessDrawable(resource);
                                 else
                                     loadingBtn.setFailDrawable(resource);
                                 return false;

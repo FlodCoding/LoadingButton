@@ -95,7 +95,7 @@ public class LoadingButton extends DrawableTextView {
 
 
     private CircularProgressDrawable mLoadingDrawable;
-    private OnLoadingListener mOnLoadingListener;
+    private OnStatusChangedListener mListener;
     private EndDrawable mEndDrawable;
     private int mLoadingSize;
     private int mLoadingPosition;
@@ -135,7 +135,7 @@ public class LoadingButton extends DrawableTextView {
         int loadingDrawableSize = array.getDimensionPixelSize(R.styleable.LoadingButton_loadingEndDrawableSize, (int) (enableShrink ? getTextSize() * 2 : getTextSize()));
         int loadingDrawableColor = array.getColor(R.styleable.LoadingButton_loadingDrawableColor, getTextColors().getDefaultColor());
         int loadingDrawablePosition = array.getInt(R.styleable.LoadingButton_loadingDrawablePosition, POSITION.START);
-        int endCompleteDrawableResId = array.getResourceId(R.styleable.LoadingButton_endCompleteDrawable, -1);
+        int endSuccessDrawable = array.getResourceId(R.styleable.LoadingButton_endSuccessDrawable, -1);
         int endFailDrawableResId = array.getResourceId(R.styleable.LoadingButton_endFailDrawable, -1);
         int endDrawableAppearTime = array.getInt(R.styleable.LoadingButton_endDrawableAppearTime, EndDrawable.DEFAULT_APPEAR_DURATION);
         int endDrawableDuration = array.getInt(R.styleable.LoadingButton_endDrawableDuration, 900);
@@ -153,8 +153,8 @@ public class LoadingButton extends DrawableTextView {
         setEnableCenterDrawables(true);
 
         //initLoadingDrawable
-        if (endCompleteDrawableResId != -1 || endFailDrawableResId != -1) {
-            mEndDrawable = new EndDrawable(endCompleteDrawableResId, endFailDrawableResId);
+        if (endSuccessDrawable != -1 || endFailDrawableResId != -1) {
+            mEndDrawable = new EndDrawable(endSuccessDrawable, endFailDrawableResId);
             mEndDrawable.mAppearAnimator.setDuration(endDrawableAppearTime);
             mEndDrawable.setKeepDuration(endDrawableDuration);
         }
@@ -211,8 +211,8 @@ public class LoadingButton extends DrawableTextView {
                     //begin shrink
                     curStatus = STATUS.SHRINKING;
                     isSizeChanging = true;
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onShrinking();
+                    if (mListener != null) {
+                        mListener.onShrinking();
                     }
 
                     LoadingButton.super.setText("", BufferType.NORMAL);
@@ -224,8 +224,8 @@ public class LoadingButton extends DrawableTextView {
                     //begin restore
                     stopLoading();
                     curStatus = STATUS.RESTORING;
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onRestoring();
+                    if (mListener != null) {
+                        mListener.onRestoring();
                     }
 
                 }
@@ -244,8 +244,8 @@ public class LoadingButton extends DrawableTextView {
                     isSizeChanging = false;
                     nextReverse = false;
                     toIde();
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onRestored();
+                    if (mListener != null) {
+                        mListener.onRestored();
                     }
                 }
             }
@@ -346,8 +346,8 @@ public class LoadingButton extends DrawableTextView {
             mLoadingDrawable.start();
         }
 
-        if (mOnLoadingListener != null) {
-            mOnLoadingListener.onLoadingStart();
+        if (mListener != null) {
+            mListener.onLoadingStart();
         }
     }
 
@@ -357,8 +357,8 @@ public class LoadingButton extends DrawableTextView {
     private void stopLoading() {
         if (mLoadingDrawable.isRunning()) {
             mLoadingDrawable.stop();
-            if (mOnLoadingListener != null) {
-                mOnLoadingListener.onLoadingStop();
+            if (mListener != null) {
+                mListener.onLoadingStop();
             }
         }
 
@@ -426,7 +426,7 @@ public class LoadingButton extends DrawableTextView {
      * 完成加载,显示对应的EndDrawable
      * <p>
      *
-     * @param isSuccess 是否加载成功，将参数传递给回调{@link OnLoadingListener#onCompleted(boolean)} ()},
+     * @param isSuccess 是否加载成功，将参数传递给回调{@link OnStatusChangedListener#onCompleted(boolean)} ()},
      */
     public void complete(boolean isSuccess) {
         stopLoading();
@@ -447,14 +447,14 @@ public class LoadingButton extends DrawableTextView {
                     }
 
                 else {
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onCompleted(isSuccess);
+                    if (mListener != null) {
+                        mListener.onCompleted(isSuccess);
                     }
                 }
             } else {
                 //No EndDrawable,disableShrink
-                if (mOnLoadingListener != null) {
-                    mOnLoadingListener.onCompleted(isSuccess);
+                if (mListener != null) {
+                    mListener.onCompleted(isSuccess);
                 }
 
                 if (enableRestore)
@@ -482,8 +482,8 @@ public class LoadingButton extends DrawableTextView {
         if (curStatus != STATUS.IDE) {
             cancelAllRunning(withRestoreAnim);
 
-            if (mOnLoadingListener != null)
-                mOnLoadingListener.onCanceled();
+            if (mListener != null)
+                mListener.onCanceled();
         }
     }
 
@@ -608,29 +608,29 @@ public class LoadingButton extends DrawableTextView {
     }
 
 
-    public LoadingButton setCompleteDrawable(@DrawableRes int id) {
+    public LoadingButton setSuccessDrawable(@DrawableRes int drawableRes) {
         if (mEndDrawable == null)
-            mEndDrawable = new EndDrawable(id, -1);
+            mEndDrawable = new EndDrawable(drawableRes, -1);
         else {
-            mEndDrawable.setCompleteDrawable(id);
+            mEndDrawable.setSuccessDrawable(drawableRes);
         }
         return this;
     }
 
-    public LoadingButton setCompleteDrawable(Drawable drawable) {
+    public LoadingButton setSuccessDrawable(Drawable drawable) {
         if (mEndDrawable == null)
             mEndDrawable = new EndDrawable(drawable, null);
         else {
-            mEndDrawable.setCompleteDrawable(drawable);
+            mEndDrawable.setSuccessDrawable(drawable);
         }
         return this;
     }
 
-    public LoadingButton setFailDrawable(@DrawableRes int id) {
+    public LoadingButton setFailDrawable(@DrawableRes int drawableRes) {
         if (mEndDrawable == null)
-            mEndDrawable = new EndDrawable(-1, id);
+            mEndDrawable = new EndDrawable(-1, drawableRes);
         else {
-            mEndDrawable.setFailDrawable(id);
+            mEndDrawable.setFailDrawable(drawableRes);
         }
         return this;
     }
@@ -730,7 +730,7 @@ public class LoadingButton extends DrawableTextView {
     @SuppressWarnings("SameParameterValue")
     public class EndDrawable {
         private static final int DEFAULT_APPEAR_DURATION = 300;
-        private Bitmap mCompleteBitmap;
+        private Bitmap mSuccessBitmap;
         private Bitmap mFailBitmap;
         private Paint mPaint;
         private Rect mBounds = new Rect();
@@ -742,14 +742,14 @@ public class LoadingButton extends DrawableTextView {
         private boolean isShowing;
         private Runnable mRunnable;
 
-        private EndDrawable(@Nullable Drawable completeDrawable, @Nullable Drawable failDrawable) {
-            setCompleteDrawable(completeDrawable);
+        private EndDrawable(@Nullable Drawable successDrawable, @Nullable Drawable failDrawable) {
+            setSuccessDrawable(successDrawable);
             setFailDrawable(failDrawable);
             init();
         }
 
-        private EndDrawable(@DrawableRes int completeResId, @DrawableRes int failResId) {
-            setCompleteDrawable(completeResId);
+        private EndDrawable(@DrawableRes int successResId, @DrawableRes int failResId) {
+            setSuccessDrawable(successResId);
             setFailDrawable(failResId);
             init();
         }
@@ -782,8 +782,8 @@ public class LoadingButton extends DrawableTextView {
                 public void onAnimationStart(Animator animation) {
                     super.onAnimationStart(animation);
                     curStatus = STATUS.END_DRAWABLE_SHOWING;
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onEndDrawableAppear(!isFail, mEndDrawable);
+                    if (mListener != null) {
+                        mListener.onEndDrawableAppear(!isFail, mEndDrawable);
                     }
                 }
 
@@ -792,8 +792,8 @@ public class LoadingButton extends DrawableTextView {
                     if (isShowing) {
                         postDelayed(mRunnable, mKeepDuration);
                     }
-                    if (mOnLoadingListener != null) {
-                        mOnLoadingListener.onCompleted(!isFail);
+                    if (mListener != null) {
+                        mListener.onCompleted(!isFail);
                     }
                 }
             });
@@ -916,7 +916,7 @@ public class LoadingButton extends DrawableTextView {
          */
         private void draw(Canvas canvas) {
             if (getAnimValue() > 0 && mLoadingDrawable != null) {
-                final Bitmap targetBitMap = isFail ? mFailBitmap : mCompleteBitmap;
+                final Bitmap targetBitMap = isFail ? mFailBitmap : mSuccessBitmap;
                 if (targetBitMap != null) {
                     final Rect bounds = mLoadingDrawable.getBounds();
                     mBounds.right = bounds.width();
@@ -963,14 +963,14 @@ public class LoadingButton extends DrawableTextView {
         }
 
 
-        public void setCompleteDrawable(Drawable drawable) {
-            mCompleteBitmap = getBitmap(drawable);
+        public void setSuccessDrawable(Drawable drawable) {
+            mSuccessBitmap = getBitmap(drawable);
         }
 
-        public void setCompleteDrawable(@DrawableRes int id) {
+        public void setSuccessDrawable(@DrawableRes int id) {
             if (id != -1) {
                 Drawable drawable = ContextCompat.getDrawable(getContext(), id);
-                mCompleteBitmap = getBitmap(drawable);
+                mSuccessBitmap = getBitmap(drawable);
             }
         }
 
@@ -982,7 +982,7 @@ public class LoadingButton extends DrawableTextView {
         }
 
         public void setFailDrawable(Drawable drawable) {
-            mCompleteBitmap = getBitmap(drawable);
+            mSuccessBitmap = getBitmap(drawable);
         }
 
     }
@@ -1020,85 +1020,55 @@ public class LoadingButton extends DrawableTextView {
             if (enableShrink && mShrinkShape == ShrinkShape.OVAL
                     && (curStatus == STATUS.LOADING || curStatus == STATUS.END_DRAWABLE_SHOWING)) {
                 outline.setOval(0, 0, getShrinkSize(), getShrinkSize());
-            } else{
+            } else {
                 super.getOutline(view, outline);
             }
 
         }
     }
 
-    public interface OnLoadingListener {
-        void onLoadingStart();
 
-        void onLoadingStop();
+    /**
+     * 状态回调
+     * start -> onShrinking ->  onLoadingStart -> complete -> onCompleted
+     * -> onLoadingStop -> onEndDrawableAppear -> onRestoring -> onRestored
+     */
+    public static class OnStatusChangedListener {
 
-        void onShrinking();
-
-        void onEndDrawableAppear(boolean isSuccess, EndDrawable endDrawable);
-
-        void onCompleted(boolean isSuccess);
-
-        void onCanceled();
-
-        void onRestoring();
-
-        void onRestored();
-
-
-    }
-
-
-    public static class OnLoadingListenerAdapter implements OnLoadingListener {
-
-        @Override
         public void onShrinking() {
 
         }
 
-
-        @Override
         public void onLoadingStart() {
 
         }
 
-        @Override
         public void onLoadingStop() {
-
 
         }
 
-        @Override
         public void onEndDrawableAppear(boolean isSuccess, EndDrawable endDrawable) {
 
         }
 
-
-        @Override
         public void onRestoring() {
 
         }
 
-        @Override
         public void onRestored() {
 
         }
-
-        @Override
         public void onCompleted(boolean isSuccess) {
 
         }
 
-
-        @Override
         public void onCanceled() {
 
         }
-
-
     }
 
-    public LoadingButton setOnLoadingListener(OnLoadingListener onLoadingListener) {
-        mOnLoadingListener = onLoadingListener;
+    public LoadingButton setOnStatusChangedListener(OnStatusChangedListener listener) {
+        mListener = listener;
         return this;
     }
 

@@ -80,7 +80,7 @@ Support-appcompat stop update
 loadingBtn.start();              //Start loading
 loadingBtn.complete(true);       //Success
 loadingBtn.complete(false);      //failed
-loadingBtn.cancel();             //Cancel loading 
+loadingBtn.cancel();             //Cancel loading  
 
 loadingBtn.setEnableShrink(true)
 	      .setEnableRestore(true)

@@ -80,7 +80,7 @@ public class LoadingButton extends DrawableTextView {
     private int mDrawablePaddingSaved;
     private CharSequence mTextSaved;
     private boolean mEnableTextInCenterSaved;
-    private int[] mRootViewSizeSaved = new int[]{0, 0};
+    private final int[] mRootViewSizeSaved = new int[]{0, 0};
 
     private ValueAnimator mShrinkAnimator;
     private int mShrinkDuration;             //收缩和恢复的时间                     默认450ms
@@ -440,11 +440,7 @@ public class LoadingButton extends DrawableTextView {
             this.isFail = !isSuccess;
             if (enableShrink) {
                 if (enableRestore)
-                    if (curStatus == STATUS.LOADING) {
-                        beginShrink(true, false);
-                    } else {
-                        beginShrink(true, true);
-                    }
+                    beginShrink(true, curStatus != STATUS.LOADING);
 
                 else {
                     if (mListener != null) {
@@ -733,7 +729,7 @@ public class LoadingButton extends DrawableTextView {
         private Bitmap mSuccessBitmap;
         private Bitmap mFailBitmap;
         private Paint mPaint;
-        private Rect mBounds = new Rect();
+        private final Rect mBounds = new Rect();
         private Path mCirclePath;   //圆形裁剪路径
         private ObjectAnimator mAppearAnimator;
         private long mKeepDuration;

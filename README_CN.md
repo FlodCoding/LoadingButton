@@ -39,9 +39,9 @@ Support-appcompat 停止更新
 
   
  
-## Demo [点我下载](https://github.com/FlodCoding/LoadingButton/raw/master/app/build/outputs/apk/debug/app-debug.apk)
+## Demo [点我下载](https://github.com/FlodCoding/LoadingButton/releases/download/1.1.0-alpha01/demo-1.1.0-alpha01.apk)
 
-![](https://upload-images.jianshu.io/upload_images/7565394-072f52d449ed4a65.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
+![下载.png](https://upload-images.jianshu.io/upload_images/7565394-f96443d70435d4b3.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/300)
 
 ### Demo截图
 ![1.gif](https://upload-images.jianshu.io/upload_images/7565394-b799c91e14a8f19a.gif?imageMogr2/auto-orient/strip)
